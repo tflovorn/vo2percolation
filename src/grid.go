@@ -7,15 +7,15 @@ import (
 	"fmt"
 )
 
-const string ShapeError = "Grid data must be rectangular and have at least one point"
-const string BoundsError = "Grid point out of bounds"
+const ShapeError = "Grid data must be rectangular and have at least one point"
+const BoundsError = "Grid point out of bounds"
 
 // Return true if and only if gridData is a M x N rectangle
 // (i.e. all sub-arrays are the same length), where M > 0 and N > 0.
 func CheckDimensions(gridData [][]bool) bool {
 	// Must have at least one point.
 	// (short-circuit evaluation protects the second check)
-	if len(gridData) == 0 || len(gridData[0] == 0) {
+	if len(gridData) == 0 || len(gridData[0]) == 0 {
 		return false
 	}
 	// All sub-arrays must have the same size as the first.
@@ -73,7 +73,7 @@ func (g *Grid) Get(x, y int) (bool, os.Error) {
 // Set the grid value at (x, y). Return an error if (x, y) is out of bounds.
 func (g *Grid) Set(x, y int, value bool) os.Error {
 	if !g.InBounds(x, y) {
-		return false, fmt.Errorf(BoundsError)
+		return fmt.Errorf(BoundsError)
 	}
 	g.data[x][y] = value
 	return nil

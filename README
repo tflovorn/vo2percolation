@@ -1,0 +1,18 @@
+Percolation model of VO2.
+
+Ground state: atoms are all dimerized, which prevents long-range hopping. 
+Atoms can be thermally excited to the metallic state.
+
+Costs energy Delta to move an atom from dimer to metal.
+If both atoms in a dimer are moved to the metal, gain back energy V.
+
+Electrons hop within a percolation network of metallic atoms.
+Hopping onto dimer sites is renormalized away, leading to nnn hopping within
+ the metal.
+
+First step: Ising-like Monte Carlo in atom excitation variables {Nu_i=0, 1}.
+Study the formation of the percolation network without including electrons.
+
+Diagonalizing the electron hopping Hamiltonian isn't trivial.  
+Need a strategy to estimate whether a configuration of Nu_i's is worth allowing
+ before diagonalization.

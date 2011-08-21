@@ -82,16 +82,16 @@ func CopyValues(jsonObject *map[string]interface{}, object interface{}) {
 	objectValue := reflect.Indirect(reflect.ValueOf(object))
 	// iterate over all fields in the JSON object
 	for key, value := range *jsonObject {
-		// get a reference to the field in obj
+		// get a reference to the field in object
 		field := objectValue.FieldByName(key)
 		if !field.CanSet() {
 			// Can't set, probably because this field doesn't
 			// exist in object.  Skip it silently.
 			continue
 		}
-		fieldType := field.Type().Name()
 		// recognize some numeric types which aren't available in JSON
 		// (can extend this list)
+		fieldType := field.Type().Name()
 		if fieldType == "int" {
 			value = int(value.(float64))
 		} else if fieldType == "uint" {

@@ -4,9 +4,12 @@ import (
 	"testing"
 )
 
+var defaultData [][]bool = [][]bool{[]bool{false, true, false}, []bool{false, true, false}}
+
+
 // Is a grid created with the proper dimensions and values?
 func TestGridCreation(t *testing.T) {
-	data := [][]bool{[]bool{true, false, false}, []bool{false, true, false}}
+	data := defaultData
 	grid, err := NewGrid(data)
 	if err != nil {
 		t.Fatal(err)
@@ -37,5 +40,20 @@ func TestGridSet(t *testing.T) {
 	grid.Set(0, 0, !defaultValue)
 	if grid.Get(0, 0) == defaultValue {
 		t.Fatalf("set failed to change value")
+	}
+}
+
+// Does Grid correctly count the number of active sites and dimers?
+func TestGridSiteCounting(t *testing.T) {
+	data := defaultData
+	grid, err := NewGrid(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if grid.ActiveSites() != 2 {
+		t.Fatalf("grid reports incorrect number of active sites")
+	}
+	if grid.Dimers() != 1 {
+		t.Fatalf("grid reports incorrect number of dimers")
 	}
 }

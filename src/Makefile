@@ -6,6 +6,7 @@ GOFILES=\
 	environment.go\
 	grid.go\
 	json.go\
+	point_set.go\
 	random.go\
 	utility.go\
 

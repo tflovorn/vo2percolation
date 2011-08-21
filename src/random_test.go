@@ -12,7 +12,7 @@ func TestRandomBoolIsRandom(t *testing.T) {
 	trueCount, falseCount := 0, 0
 	for i := 0; i < repeatCount; i++ {
 		val := RandomBool()
-		if (val) {
+		if val {
 			trueCount += 1
 		} else {
 			falseCount += 1

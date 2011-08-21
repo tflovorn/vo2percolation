@@ -12,6 +12,14 @@ import (
 const GridShapeError = "Grid data must be rectangular and contain at least one point"
 const GridBoundsError = "Grid point out of bounds"
 
+// 2D lattice with bounds-checked access functions and cluster statistics
+type Grid struct {
+	data [][]bool // CheckDimensions(data) must be true
+}
+
+// Function type for iterating over a Grid
+type GridCallback func(x, y int, value bool)
+
 // Return true if and only if gridData is a M x N rectangle
 // (i.e. all sub-arrays are the same length), where M > 0 and N > 0.
 func CheckDimensions(gridData [][]bool) bool {
@@ -28,11 +36,6 @@ func CheckDimensions(gridData [][]bool) bool {
 		}
 	}
 	return true
-}
-
-// 2D lattice with bounds-checked access functions and cluster statistics
-type Grid struct {
-	data [][]bool // CheckDimensions(data) must be true
 }
 
 // Construct a Grid object from initData.  
@@ -73,7 +76,7 @@ func RandomConstrainedGrid(Lx, Ly, N int) (*Grid, os.Error) {
 	// silently deal with N < 0 and N > Lx * Ly
 	if N < 0 {
 		N = 0
-	} else if N > Lx * Ly {
+	} else if N > Lx*Ly {
 		N = Lx * Ly
 	}
 	// build the empty grid
@@ -128,4 +131,48 @@ func (g *Grid) Set(x, y int, value bool) {
 		panic(GridBoundsError)
 	}
 	g.data[x][y] = value
+}
+
+// Iterate over g, calling f at each site.
+func (g *Grid) Iterate(f GridCallback) {
+	for x := 0; x < g.Lx(); x++ {
+		for y := 0; y < g.Ly(); y++ {
+			f(x, y, g.Get(x, y))
+		}
+	}
+}
+
+// Return the number of active sites in g.
+func (g *Grid) ActiveSites() int {
+	count := 0
+	checkSite := func(x, y int, value bool) {
+		if value {
+			count++
+		}
+	}
+	g.Iterate(checkSite)
+	return count
+}
+
+// Return the number of dimers in g, assuming pairing happens in x only.
+// Assume that [0, 0] and [0, 1] are paired (this defines the pairing of all
+// other dimers).
+func (g *Grid) Dimers() int {
+	count := 0
+	checkSite := func(x, y int, value bool) {
+		// ignore odd sites to avoid double-counting
+		if x%2 == 1 {
+			return
+		}
+		// if Lx is odd, the final site can't be in a dimer
+		if x+1 == g.Lx() {
+			return
+		}
+		// look at the site to the right: count if both are active
+		if value && g.Get(x+1, y) {
+			count++
+		}
+	}
+	g.Iterate(checkSite)
+	return count
 }

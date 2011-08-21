@@ -2,6 +2,7 @@ include $(GOROOT)/src/Make.inc
 
 TARG=percolation
 GOFILES=\
+	energetics.go\
 	environment.go\
 	grid.go\
 	json.go\

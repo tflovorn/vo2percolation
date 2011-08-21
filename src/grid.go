@@ -5,6 +5,8 @@ package percolation
 import (
 	"os"
 	"fmt"
+	"rand"
+	"time"
 )
 
 const GridShapeError = "Grid data must be rectangular and contain at least one point"
@@ -43,6 +45,55 @@ func NewGrid(initData [][]bool) (*Grid, os.Error) {
 	grid := new(Grid)
 	grid.data = initData
 	return grid, nil
+}
+
+// Generate a random grid of dimensions Lx and Ly.
+func RandomGrid(Lx, Ly int) (*Grid, os.Error) {
+	// must have at least one site
+	if Lx <= 0 || Ly <= 0 {
+		return nil, fmt.Errorf("invalid grid dimensions")
+	}
+	// build the random grid
+	data := [][]bool{}
+	for x := 0; x < Lx; x++ {
+		data := append(data, []bool{})
+		for y := 0; y < Ly; y++ {
+			data[x] = append(data[x], RandomBool())
+		}
+	}
+	return NewGrid(data)
+}
+
+// Generate a random grid of dimensions Lx and Ly with N active sites.
+func RandomConstrainedGrid(Lx, Ly, N int) (*Grid, os.Error) {
+	// must have at least one site
+	if Lx <= 0 || Ly <= 0 {
+		return nil, fmt.Errorf("invalid grid dimensions")
+	}
+	// silently deal with N < 0 and N > Lx * Ly
+	if N < 0 {
+		N = 0
+	} else if N > Lx * Ly {
+		N = Lx * Ly
+	}
+	// build the empty grid
+	data := [][]bool{}
+	for x := 0; x < Lx; x++ {
+		data := append(data, []bool{})
+		for y := 0; y < Ly; y++ {
+			data[x] = append(data[x], true)
+		}
+	}
+	// activate random sites
+	random := rand.New(rand.NewSource(time.Nanoseconds()))
+	for activeCount := 0; activeCount < N; {
+		x, y := random.Intn(Lx), random.Intn(Ly)
+		if !data[x][y] {
+			data[x][y] = true
+			activeCount += 1
+		}
+	}
+	return NewGrid(data)
 }
 
 // Width of the grid.

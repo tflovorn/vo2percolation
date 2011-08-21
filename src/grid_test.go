@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var defaultData [][]bool = [][]bool{[]bool{false, true, false}, []bool{false, true, false}}
+var defaultData [][]bool = [][]bool{[]bool{true, false, true}, []bool{false, false, true}}
 
 // Is a grid created with the proper dimensions and values?
 func TestGridCreation(t *testing.T) {
@@ -44,15 +44,32 @@ func TestGridSet(t *testing.T) {
 
 // Does Grid correctly count the number of active sites and dimers?
 func TestGridSiteCounting(t *testing.T) {
-	data := defaultData
-	grid, err := NewGrid(data)
+	grid, err := NewGrid(defaultData)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if grid.ActiveSites() != 2 {
+	if grid.ActiveSiteCount() != 3 {
 		t.Fatalf("grid reports incorrect number of active sites")
 	}
-	if grid.Dimers() != 1 {
+	if grid.DimerCount() != 1 {
 		t.Fatalf("grid reports incorrect number of dimers")
+	}
+}
+
+// Does AllClusters return the correct clusters?
+func TestGridClusters(t *testing.T) {
+	grid, err := NewGrid(defaultData)
+	if err != nil {
+		t.Fatal(err)
+	}
+	knownCluster1, knownCluster2 := NewPointSet(grid.Lx(), grid.Ly()), NewPointSet(grid.Lx(), grid.Ly())
+	knownCluster1.Add(0, 0)
+	knownCluster2.Add(0, 2)
+	knownCluster2.Add(1, 2)
+	clusters := grid.AllClusters()
+	for _, ps := range clusters {
+		if !ps.Equals(knownCluster1) && !ps.Equals(knownCluster2) {
+			t.Fatalf("unexpected cluster")
+		}
 	}
 }

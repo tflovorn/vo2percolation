@@ -4,7 +4,7 @@ package percolation
 // Give the energy corresponding to the given grid of atoms without including
 // the effect of the electrons.
 func AtomicHamiltonian(grid *Grid, env *Environment) float64 {
-	activeSites := float64(grid.ActiveSites())
-	dimers := float64(grid.Dimers())
+	activeSites := float64(grid.ActiveSiteCount())
+	dimers := float64(grid.DimerCount())
 	return env.Delta*activeSites - env.V*dimers
 }

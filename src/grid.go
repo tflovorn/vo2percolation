@@ -143,7 +143,7 @@ func (g *Grid) Iterate(f GridCallback) {
 }
 
 // Return the number of active sites in g.
-func (g *Grid) ActiveSites() int {
+func (g *Grid) ActiveSiteCount() int {
 	count := 0
 	checkSite := func(x, y int, value bool) {
 		if value {
@@ -157,7 +157,7 @@ func (g *Grid) ActiveSites() int {
 // Return the number of dimers in g, assuming pairing happens in x only.
 // Assume that [0, 0] and [0, 1] are paired (this defines the pairing of all
 // other dimers).
-func (g *Grid) Dimers() int {
+func (g *Grid) DimerCount() int {
 	count := 0
 	checkSite := func(x, y int, value bool) {
 		// ignore odd sites to avoid double-counting
@@ -175,4 +175,83 @@ func (g *Grid) Dimers() int {
 	}
 	g.Iterate(checkSite)
 	return count
+}
+
+// Return a PointSet containing all active sites in the grid.
+func (g *Grid) ActiveSites() *PointSet {
+	ps := NewPointSet(g.Lx(), g.Ly())
+	addSite := func(x, y int, value bool) {
+		// only add active sites
+		if value {
+			ps.Add(x, y)
+		}
+	}
+	g.Iterate(addSite)
+	return ps
+}
+
+// Return a slice containing each cluster of active sites on the grid.
+func (g *Grid) AllClusters() []*PointSet {
+	clusters := []*PointSet{}
+	unexplored := g.ActiveSites()
+	for unexplored.Size() > 0 {
+		x, y := unexplored.Point()
+		thisCluster := g.Cluster(x, y)
+		for _, point := range thisCluster.Elements() {
+			xr, yr := point[0], point[1]
+			unexplored.Remove(xr, yr)
+		}
+		clusters = append(clusters, thisCluster)
+	}
+	return clusters
+}
+
+// Return the cluster at (x, y).
+func (g *Grid) Cluster(x, y int) *PointSet {
+	ps := NewPointSet(g.Lx(), g.Ly())
+	g.clusterHelper(x, y, ps)
+	return ps
+}
+
+// Add all members of the cluster at (x, y) to ps.
+func (g *Grid) clusterHelper(x, y int, ps *PointSet) {
+	if ps == nil {
+		panic("must initialize ps in clusterHelper")
+	}
+	// base case: don't go to inactive or already-seen sites
+	if ps.Contains(x, y) || !g.Get(x, y) {
+		return
+	}
+	// haven't seen this active site yet: add it and try its neighbors
+	ps.Add(x, y)
+	ns := g.Neighbors(x, y)
+	for _, point := range ns {
+		xn, yn := point[0], point[1]
+		if !ps.Contains(xn, yn) {
+			g.clusterHelper(xn, yn, ps)
+		}
+	}
+}
+
+// Return a slice containing all neighbors of the given point.
+// Only counts nearest neighbors for now - could also count next nearest.
+func (g *Grid) Neighbors(x, y int) [][]int {
+	ns := [][]int{}
+	// left
+	if x > 0 {
+		ns = append(ns, []int{x - 1, y})
+	}
+	// right
+	if x < g.Lx()-1 {
+		ns = append(ns, []int{x + 1, y})
+	}
+	// down
+	if y > 0 {
+		ns = append(ns, []int{x, y - 1})
+	}
+	// up
+	if y < g.Ly()-1 {
+		ns = append(ns, []int{x, y + 1})
+	}
+	return ns
 }

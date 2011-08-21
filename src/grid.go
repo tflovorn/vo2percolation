@@ -7,8 +7,8 @@ import (
 	"fmt"
 )
 
-const ShapeError = "Grid data must be rectangular and have at least one point"
-const BoundsError = "Grid point out of bounds"
+const GridShapeError = "Grid data must be rectangular and contain at least one point"
+const GridBoundsError = "Grid point out of bounds"
 
 // Return true if and only if gridData is a M x N rectangle
 // (i.e. all sub-arrays are the same length), where M > 0 and N > 0.
@@ -28,8 +28,9 @@ func CheckDimensions(gridData [][]bool) bool {
 	return true
 }
 
+// 2D lattice with bounds-checked access functions and cluster statistics
 type Grid struct {
-	data [][]bool
+	data [][]bool // CheckDimensions(data) must be true
 }
 
 // Construct a Grid object from initData.  
@@ -37,7 +38,7 @@ type Grid struct {
 // Returns nil and an error if the shape is not correct.
 func NewGrid(initData [][]bool) (*Grid, os.Error) {
 	if !CheckDimensions(initData) {
-		return nil, fmt.Errorf(ShapeError)
+		return nil, fmt.Errorf(GridShapeError)
 	}
 	grid := new(Grid)
 	grid.data = initData
@@ -62,19 +63,18 @@ func (g *Grid) InBounds(x, y int) bool {
 	return true
 }
 
-// Get the grid value at (x, y). Return an error if (x, y) is out of bounds.
-func (g *Grid) Get(x, y int) (bool, os.Error) {
+// Get the grid value at (x, y). Panic if (x, y) is out of bounds.
+func (g *Grid) Get(x, y int) bool {
 	if !g.InBounds(x, y) {
-		return false, fmt.Errorf(BoundsError)
+		panic(GridBoundsError)
 	}
-	return g.data[x][y], nil
+	return g.data[x][y]
 }
 
-// Set the grid value at (x, y). Return an error if (x, y) is out of bounds.
-func (g *Grid) Set(x, y int, value bool) os.Error {
+// Set the grid value at (x, y). Panic if (x, y) is out of bounds.
+func (g *Grid) Set(x, y int, value bool) {
 	if !g.InBounds(x, y) {
-		return fmt.Errorf(BoundsError)
+		panic(GridBoundsError)
 	}
 	g.data[x][y] = value
-	return nil
 }

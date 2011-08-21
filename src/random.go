@@ -1,3 +1,4 @@
+// Functions for producing random values.
 package percolation
 
 import (

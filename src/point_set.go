@@ -1,14 +1,12 @@
 // Unordered set of 2D points
 package percolation
 
-import (
-	"math"
-)
+import "math"
 
 type PointSet struct {
 	// The dimensions of the grid.
 	Lx, Ly int
-	// Data's keys are 1D coordinates covering the grid.  When the value
+	// data's keys are 1D coordinates covering the grid.  When the value
 	// associated with a key is true, that key is part of the point set.
 	data map[int]bool
 }

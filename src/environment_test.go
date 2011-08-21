@@ -6,10 +6,9 @@ import (
 )
 
 func TestEnvironmentFromJSON(t *testing.T) {
-	env := new(Environment)
 	Delta, V := 1.0, 0.5
 	data := fmt.Sprintf("{\"Delta\":%f, \"V\":%f}", Delta, V)
-	err := CopyFromString(data, env)
+	env, err := EnvironmentFromString(data)
 	if err != nil {
 		t.Fatal(err)
 	}

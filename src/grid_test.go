@@ -6,7 +6,6 @@ import (
 
 var defaultData [][]bool = [][]bool{[]bool{false, true, false}, []bool{false, true, false}}
 
-
 // Is a grid created with the proper dimensions and values?
 func TestGridCreation(t *testing.T) {
 	data := defaultData

@@ -6,6 +6,7 @@ import "os"
 type Environment struct {
 	Delta float64 // energy cost of exciting an atom
 	V     float64 // energy gained from exciting a dimer
+	Beta  float64 // inverse thermal energy 1 / (k_B * T)
 }
 
 // Build an Environment from the JSON file at filePath.

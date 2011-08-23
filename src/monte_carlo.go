@@ -9,6 +9,7 @@ import (
 
 const MonteCarloValidateError = "Monte Carlo input parameters are invalid"
 
+// Hold parameters necesarry to perform the simulation
 type MonteCarlo struct {
 	// Minimum value of random flip acceptance probability (must be > 0).
 	etaMinimum float64
@@ -19,6 +20,13 @@ type MonteCarlo struct {
 	recordInterval int
 }
 
+// Data reported for each time step in the simulation
+type MonteCarloOutput struct {
+	ActiveSites, Dimers, LargestClusterSize int
+	Grid *Grid // may be nil
+}
+
+// Create a new (input-validated) MonteCarlo with the given parameters.
 func NewMonteCarlo(etaMinimum float64, totalSteps, recordInterval int) (*MonteCarlo, os.Error) {
 	mc := new(MonteCarlo)
 	mc.etaMinimum = etaMinimum
@@ -59,12 +67,13 @@ func (mc *MonteCarlo) Step(e *Energetics, g *Grid) bool {
 	return false
 }
 
+
 // Run a simulation, starting from a random grid with dimensions (Lx, Ly) and
 // taking steps equal to mc.totalSteps.  Return a slice containg each recorded
 // grid.  May also want to return a slice of the times when each grid was
 // recorded.
-func (mc *MonteCarlo) Simulate(e *Energetics, Lx, Ly int) ([]*Grid, os.Error) {
-	gridResults := []*Grid{}
+func (mc *MonteCarlo) Simulate(e *Energetics, Lx, Ly int) ([]*MonteCarloOutput, os.Error) {
+	outputList := []*MonteCarloOutput{}
 	// estimate starting number of active sites
 	expectedActive := int(float64(Lx * Ly) * e.Boltzmann(e.Delta()))
 	// generate the initial grid
@@ -74,15 +83,18 @@ func (mc *MonteCarlo) Simulate(e *Energetics, Lx, Ly int) ([]*Grid, os.Error) {
 	}
 	// Monte Carlo loop
 	for time := 0; time < mc.totalSteps; time++ {
+		thisOutput := new(MonteCarloOutput)
 		// log grid if it's the right time to
 		if time % mc.recordInterval == 0 {
-			logGrid := grid.Copy()
-			gridResults = append(gridResults, logGrid)
+			thisOutput.Grid = grid.Copy()
 		}
 		// record the quantities we want to know for each configuration
-
+		thisOutput.ActiveSites = grid.ActiveSiteCount()
+		thisOutput.Dimers = grid.DimerCount()
+		thisOutput.LargestClusterSize = grid.LargestCluster().Size()
+		outputList = append(outputList, thisOutput)
 		// try to perturb the grid
 		mc.Step(e, grid) // could record failure/success here
 	}
-	return gridResults, nil
+	return outputList, nil
 }

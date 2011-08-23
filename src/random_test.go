@@ -6,6 +6,8 @@ import (
 )
 
 // Examine the statistics of RandomBool.
+// There is a nonzero (but small) chance for this to fail, controlled by the
+// value of epsilon.
 func TestRandomBoolIsRandom(t *testing.T) {
 	epsilon := 2e-2 // greatest allowed relError
 	repeatCount := int(math.Pow(2.0, 16.0))

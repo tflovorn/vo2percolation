@@ -11,6 +11,7 @@ import (
 
 const GridShapeError = "Grid data must be rectangular and contain at least one point"
 const GridBoundsError = "Grid point out of bounds"
+const DimerPartnerError = "Site has no dimer partner"
 
 // 2D lattice with bounds-checked access functions and cluster statistics
 type Grid struct {
@@ -133,6 +134,14 @@ func (g *Grid) Set(x, y int, value bool) {
 	g.data[x][y] = value
 }
 
+// Flip the grid value at (x, y).  Panic if (x, y) is out of bounds.
+func (g *Grid) Toggle(x, y int) {
+	if !g.InBounds(x, y) {
+		panic(GridBoundsError)
+	}
+	g.data[x][y] = !g.data[x][y]
+}
+
 // Iterate over g, calling f at each site.
 func (g *Grid) Iterate(f GridCallback) {
 	for x := 0; x < g.Lx(); x++ {
@@ -175,6 +184,43 @@ func (g *Grid) DimerCount() int {
 	}
 	g.Iterate(checkSite)
 	return count
+}
+
+// Return the site which can form a dimer with the given site at (x, y).
+func (g *Grid) DimerPartner(x, y int) (int, int, os.Error) {
+	if !g.InBounds(x, y) {
+		panic(GridBoundsError)
+	}
+	// even site: parter is to the right (if it exists)
+	if x%2 == 1 {
+		// if Lx is odd, last site doesn't have a partner
+		if x+1 == g.Lx() {
+			return -1, -1, fmt.Errorf(DimerPartnerError)
+		}
+		return x + 1, y, nil
+	}
+	// odd site: partner is to the left
+	return x - 1, y, nil
+}
+
+// How would flipping the site at (x, y) affect the number of dimers?
+func (g *Grid) DimerChange(x, y int) int {
+	thisSiteValue := g.Get(x, y)
+	xPartner, yPartner, err := g.DimerPartner(x, y)
+	if err != nil {
+		if err.String() == DimerPartnerError {
+			return 0
+		}
+		panic("unexpected error from DimerPartner")
+	}
+	partnerSiteValue := g.Get(xPartner, yPartner)
+	if thisSiteValue && partnerSiteValue {
+		return -1
+	}
+	if !thisSiteValue && partnerSiteValue {
+		return 1
+	}
+	return 0
 }
 
 // Return a PointSet containing all active sites in the grid.

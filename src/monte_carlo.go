@@ -78,5 +78,5 @@ func (mc *MonteCarlo) Step(e *Energetics, g *Grid) bool {
 // mc.totalSteps.  Return a slice containg each recorded grid.
 // May also want to return a slice of the times when each grid was recorded.
 func (mc *MonteCarlo) Simulate(e *Energetics) []*Grid {
-
+	return nil
 }

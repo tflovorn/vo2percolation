@@ -10,7 +10,13 @@ import (
 const MonteCarloValidateError = "Monte Carlo input parameters are invalid"
 
 type MonteCarlo struct {
-	etaMinimum float64 // must be greater than 0
+	// Minimum value of random flip acceptance probability (must be > 0).
+	etaMinimum float64
+	// How many total steps should be taken in the simulation?
+	totalSteps int
+	// Number of steps to take between snapshots of the grid.
+	// If recordInterval is <= 0, only snapshot the final grid.
+	recordInterval int
 }
 
 // Build a MonteCarlo from the JSON file at filePath.
@@ -41,7 +47,7 @@ func MonteCarloFromString(jsonData string) (*MonteCarlo, os.Error) {
 
 // Do the fields of mc have acceptable values?
 func (mc *MonteCarlo) validate() bool {
-	return mc.etaMinimum > 0
+	return mc.etaMinimum > 0 && mc.totalSteps > 0
 }
 
 // Make a random perturbation on the Grid g.  If this perturbation leads to a
@@ -66,4 +72,11 @@ func (mc *MonteCarlo) Step(e *Energetics, g *Grid) bool {
 		return true
 	}
 	return false
+}
+
+// Run a simulation, starting from a random grid and taking steps equal to
+// mc.totalSteps.  Return a slice containg each recorded grid.
+// May also want to return a slice of the times when each grid was recorded.
+func (mc *MonteCarlo) Simulate(e *Energetics) []*Grid {
+
 }

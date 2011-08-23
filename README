@@ -19,3 +19,6 @@ Need a strategy to estimate whether a configuration of Nu_i's is worth allowing
 
 gofmt pre-commit hook is helpful:
 http://golang.tumblr.com/post/439868556/git-precommit-hook-for-gofmt
+
+with inspiration from:
+http://fraden.brandeis.edu/courses/phys39/simulations/Student%20Ising%20Swarthmore.pdf

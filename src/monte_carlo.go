@@ -4,7 +4,10 @@ package percolation
 import (
 	"os"
 	"math"
+	"fmt"
 )
+
+const MonteCarloValidateError = "Monte Carlo input parameters are invalid"
 
 type MonteCarlo struct {
 	etaMinimum float64 // must be greater than 0
@@ -17,6 +20,9 @@ func MonteCarloFromFile(filePath string) (*MonteCarlo, os.Error) {
 	if err != nil {
 		return nil, err
 	}
+	if !mc.validate() {
+		return nil, fmt.Errorf(MonteCarloValidateError)
+	}
 	return mc, nil
 }
 
@@ -27,11 +33,16 @@ func MonteCarloFromString(jsonData string) (*MonteCarlo, os.Error) {
 	if err != nil {
 		return nil, err
 	}
-	// validate
+	if !mc.validate() {
+		return nil, fmt.Errorf(MonteCarloValidateError)
+	}
 	return mc, nil
 }
 
-// TODO: need a validate method (also for Environment)
+// Do the fields of mc have acceptable values?
+func (mc *MonteCarlo) validate() bool {
+	return mc.etaMinimum > 0
+}
 
 // Make a random perturbation on the Grid g.  If this perturbation leads to a
 // negative energy change, accept it.  If it leads to a positive energy change,

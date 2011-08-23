@@ -1,6 +1,11 @@
 package percolation
 
-import "os"
+import (
+	"os"
+	"fmt"
+)
+
+const EnvironmentValidateError = "Environment input parameters are invalid"
 
 // Physical parameters
 type Environment struct {
@@ -16,6 +21,9 @@ func EnvironmentFromFile(filePath string) (*Environment, os.Error) {
 	if err != nil {
 		return nil, err
 	}
+	if !env.validate() {
+		return nil, fmt.Errorf(EnvironmentValidateError)
+	}
 	return env, nil
 }
 
@@ -26,5 +34,13 @@ func EnvironmentFromString(jsonData string) (*Environment, os.Error) {
 	if err != nil {
 		return nil, err
 	}
+	if !env.validate() {
+		return nil, fmt.Errorf(EnvironmentValidateError)
+	}
 	return env, nil
+}
+
+// Do the fields of env have acceptable values?
+func (env *Environment) validate() bool {
+	return env.Delta > 0 && env.V > 0 && env.Beta > 0
 }

@@ -11,13 +11,30 @@ import (
 func RandomBool() bool {
 	// seed to current time
 	rand.Seed(time.Nanoseconds())
-	// generate a random integer in the range [0, 2) (i.e. 0 or 1)
+	// pick 0 or 1 randomly
 	i := rand.Intn(2)
+	// sanity check
 	if i < 0 || i > 1 {
 		panic("random integer outside expected bounds")
 	}
+	// convert to bool
 	if i == 0 {
 		return false
 	}
 	return true
+}
+
+// Return a pair of random integer values whose maxima are given by topX, topY.
+func RandomIntPair(topX, topY int) (int, int) {
+	// one seed for both rand.Intn calls
+	rand.Seed(time.Nanoseconds())
+	randX := rand.Intn(topX)
+	randY := rand.Intn(topY)
+	return randX, randY
+}
+
+// Return a random float64 in the range [0.0, 1.0).
+func RandomFloat() float64 {
+	rand.Seed(time.Nanoseconds())
+	return rand.Float64()
 }

@@ -192,7 +192,7 @@ func (g *Grid) DimerPartner(x, y int) (int, int, os.Error) {
 		panic(GridBoundsError)
 	}
 	// even site: parter is to the right (if it exists)
-	if x%2 == 1 {
+	if x%2 == 0 {
 		// if Lx is odd, last site doesn't have a partner
 		if x+1 == g.Lx() {
 			return -1, -1, fmt.Errorf(DimerPartnerError)

@@ -270,6 +270,21 @@ func (g *Grid) AllClusters() []*PointSet {
 	return clusters
 }
 
+// Return the largest cluster on the grid.
+func (g *Grid) LargestCluster() *PointSet {
+	clusters := g.AllClusters()
+	var max *PointSet = nil
+	maxSize := 0
+	for _, cluster := range clusters {
+		thisSize := cluster.Size()
+		if max == nil || thisSize > maxSize {
+			max = cluster
+			maxSize = thisSize
+		}
+	}
+	return max
+}
+
 // Return the cluster at (x, y).
 func (g *Grid) Cluster(x, y int) *PointSet {
 	ps := NewPointSet(g.Lx(), g.Ly())

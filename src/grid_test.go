@@ -57,6 +57,7 @@ func TestGridSiteCounting(t *testing.T) {
 }
 
 // Does AllClusters return the correct clusters?
+// Does LargestCluster pick the right cluster?
 func TestGridClusters(t *testing.T) {
 	grid, err := NewGrid(defaultData)
 	if err != nil {
@@ -71,5 +72,9 @@ func TestGridClusters(t *testing.T) {
 		if !ps.Equals(knownCluster1) && !ps.Equals(knownCluster2) {
 			t.Fatalf("unexpected cluster")
 		}
+	}
+	largest := grid.LargestCluster()
+	if !largest.Equals(knownCluster2) {
+		t.Fatalf("incorrect largest cluster")
 	}
 }

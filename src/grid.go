@@ -151,6 +151,24 @@ func (g *Grid) Iterate(f GridCallback) {
 	}
 }
 
+// Return a pointer to a copy of g.
+func (g *Grid) Copy() *Grid {
+	copyData := [][]bool{}
+	for x := 0; x < g.Lx(); x++ {
+		nextColumn := []bool{}
+		for y := 0; y < g.Ly(); y++ {
+			nextColumn = append(nextColumn, g.Get(x, y))
+		}
+		copyData = append(copyData, nextColumn)
+	}
+	cg, err := NewGrid(copyData)
+	// this shouldn't happen, g should have had the correct shape
+	if err != nil {
+		panic(err)
+	}
+	return cg
+}
+
 // Return the number of active sites in g.
 func (g *Grid) ActiveSiteCount() int {
 	count := 0

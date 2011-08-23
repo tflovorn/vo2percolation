@@ -19,26 +19,11 @@ type MonteCarlo struct {
 	recordInterval int
 }
 
-// Build a MonteCarlo from the JSON file at filePath.
-func MonteCarloFromFile(filePath string) (*MonteCarlo, os.Error) {
+func NewMonteCarlo(etaMinimum float64, totalSteps, recordInterval int) (*MonteCarlo, os.Error) {
 	mc := new(MonteCarlo)
-	err := CopyFromFile(filePath, mc)
-	if err != nil {
-		return nil, err
-	}
-	if !mc.validate() {
-		return nil, fmt.Errorf(MonteCarloValidateError)
-	}
-	return mc, nil
-}
-
-// Build a MonteCarlo from the given JSON string.
-func MonteCarloFromString(jsonData string) (*MonteCarlo, os.Error) {
-	mc := new(MonteCarlo)
-	err := CopyFromString(jsonData, mc)
-	if err != nil {
-		return nil, err
-	}
+	mc.etaMinimum = etaMinimum
+	mc.totalSteps = totalSteps
+	mc.recordInterval = recordInterval
 	if !mc.validate() {
 		return nil, fmt.Errorf(MonteCarloValidateError)
 	}
@@ -74,9 +59,30 @@ func (mc *MonteCarlo) Step(e *Energetics, g *Grid) bool {
 	return false
 }
 
-// Run a simulation, starting from a random grid and taking steps equal to
-// mc.totalSteps.  Return a slice containg each recorded grid.
-// May also want to return a slice of the times when each grid was recorded.
-func (mc *MonteCarlo) Simulate(e *Energetics) []*Grid {
-	return nil
+// Run a simulation, starting from a random grid with dimensions (Lx, Ly) and
+// taking steps equal to mc.totalSteps.  Return a slice containg each recorded
+// grid.  May also want to return a slice of the times when each grid was
+// recorded.
+func (mc *MonteCarlo) Simulate(e *Energetics, Lx, Ly int) ([]*Grid, os.Error) {
+	gridResults := []*Grid{}
+	// estimate starting number of active sites
+	expectedActive := int(float64(Lx * Ly) * e.Boltzmann(e.Delta()))
+	// generate the initial grid
+	grid, err := RandomConstrainedGrid(Lx, Ly, expectedActive)
+	if err != nil {
+		return nil, err
+	}
+	// Monte Carlo loop
+	for time := 0; time < mc.totalSteps; time++ {
+		// log grid if it's the right time to
+		if time % mc.recordInterval == 0 {
+			logGrid := grid.Copy()
+			gridResults = append(gridResults, logGrid)
+		}
+		// record the quantities we want to know for each configuration
+
+		// try to perturb the grid
+		mc.Step(e, grid) // could record failure/success here
+	}
+	return gridResults, nil
 }

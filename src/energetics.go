@@ -1,6 +1,8 @@
 // Functions for calculating energies based on a Grid and Environment.
 package percolation
 
+import "math"
+
 type Energetics struct {
 	env Environment
 }
@@ -46,8 +48,11 @@ func (e *Energetics) SiteFlipEnergy(g *Grid, xf, yf int) float64 {
 	return energyChange
 }
 
-// Probability to accept a Monte Carlo state when energy changed by the given
-// positive value.
+// Boltzmann factor.
+func (e *Energetics) Boltzmann(energy float64) float64 {
+	return math.Exp(-e.Beta() * energy)
+}
+
 func (e *Energetics) LogBoltzmann(energy float64) float64 {
 	return -e.Beta() * energy
 }

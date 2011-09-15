@@ -23,7 +23,7 @@ type MonteCarlo struct {
 // Data reported for each time step in the simulation
 type MonteCarloOutput struct {
 	ActiveSites, Dimers, LargestClusterSize int
-	Grid *Grid // may be nil
+	Grid                                    *Grid // may be nil
 }
 
 // Create a new (input-validated) MonteCarlo with the given parameters.
@@ -67,7 +67,6 @@ func (mc *MonteCarlo) Step(e *Energetics, g *Grid) bool {
 	return false
 }
 
-
 // Run a simulation, starting from a random grid with dimensions (Lx, Ly) and
 // taking steps equal to mc.totalSteps.  Return a slice containg each recorded
 // grid.  May also want to return a slice of the times when each grid was
@@ -75,7 +74,7 @@ func (mc *MonteCarlo) Step(e *Energetics, g *Grid) bool {
 func (mc *MonteCarlo) Simulate(e *Energetics, Lx, Ly int) ([]*MonteCarloOutput, os.Error) {
 	outputList := []*MonteCarloOutput{}
 	// estimate starting number of active sites
-	expectedActive := int(float64(Lx * Ly) * e.Boltzmann(e.Delta()))
+	expectedActive := int(float64(Lx*Ly) * e.Boltzmann(e.Delta()))
 	// generate the initial grid
 	grid, err := RandomConstrainedGrid(Lx, Ly, expectedActive)
 	if err != nil {
@@ -85,7 +84,7 @@ func (mc *MonteCarlo) Simulate(e *Energetics, Lx, Ly int) ([]*MonteCarloOutput, 
 	for time := 0; time < mc.totalSteps; time++ {
 		thisOutput := new(MonteCarloOutput)
 		// log grid if it's the right time to
-		if time % mc.recordInterval == 0 {
+		if time%mc.recordInterval == 0 {
 			thisOutput.Grid = grid.Copy()
 		}
 		// record the quantities we want to know for each configuration

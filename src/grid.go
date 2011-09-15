@@ -1,5 +1,9 @@
-// 2D lattice where each site is characterized by a boolean value.
+// 2D centered rectangular (rhombic) lattice where each site is characterized 
+// by a boolean value.  Site labeling is shown at:
+// http://dl.dropbox.com/u/41859823/vo2/lattice.pdf
 // Sites where the boolean is true are 'active' and can form clusters.
+// Clusters are connected by neighbors in the dimer-forming (x) direction and
+// in the diagonal directions.
 package percolation
 
 import (
@@ -10,7 +14,7 @@ import (
 )
 
 const GridShapeError = "Grid data must be rectangular and contain at least one point"
-const GridBoundsError = "Grid point out of bounds"
+const GridBoundsError = "Grid point (%d, %d) out of bounds"
 const DimerPartnerError = "Site has no dimer partner"
 
 // 2D lattice with bounds-checked access functions and cluster statistics
@@ -121,7 +125,7 @@ func (g *Grid) InBounds(x, y int) bool {
 // Get the grid value at (x, y). Panic if (x, y) is out of bounds.
 func (g *Grid) Get(x, y int) bool {
 	if !g.InBounds(x, y) {
-		panic(GridBoundsError)
+		panic(fmt.Sprintf(GridBoundsError, x, y))
 	}
 	return g.data[x][y]
 }
@@ -129,7 +133,7 @@ func (g *Grid) Get(x, y int) bool {
 // Set the grid value at (x, y). Panic if (x, y) is out of bounds.
 func (g *Grid) Set(x, y int, value bool) {
 	if !g.InBounds(x, y) {
-		panic(GridBoundsError)
+		panic(fmt.Sprintf(GridBoundsError, x, y))
 	}
 	g.data[x][y] = value
 }
@@ -137,7 +141,7 @@ func (g *Grid) Set(x, y int, value bool) {
 // Flip the grid value at (x, y).  Panic if (x, y) is out of bounds.
 func (g *Grid) Toggle(x, y int) {
 	if !g.InBounds(x, y) {
-		panic(GridBoundsError)
+		panic(fmt.Sprintf(GridBoundsError, x, y))
 	}
 	g.data[x][y] = !g.data[x][y]
 }
@@ -207,7 +211,7 @@ func (g *Grid) DimerCount() int {
 // Return the site which can form a dimer with the given site at (x, y).
 func (g *Grid) DimerPartner(x, y int) (int, int, os.Error) {
 	if !g.InBounds(x, y) {
-		panic(GridBoundsError)
+		panic(fmt.Sprintf(GridBoundsError, x, y))
 	}
 	// even site: parter is to the right (if it exists)
 	if x%2 == 0 {
@@ -313,24 +317,53 @@ func (g *Grid) clusterHelper(x, y int, ps *PointSet) {
 }
 
 // Return a slice containing all neighbors of the given point.
-// Only counts nearest neighbors for now - could also count next nearest.
+// A site which isn't on a boundary has 6 neighbors: 2 in the dimer direction
+// and 4 in the diagonal directions.
 func (g *Grid) Neighbors(x, y int) [][]int {
 	ns := [][]int{}
-	// left
+	xmax, ymax := g.Lx()-1, g.Ly()-1
+	// left (dimer)
 	if x > 0 {
 		ns = append(ns, []int{x - 1, y})
 	}
-	// right
-	if x < g.Lx()-1 {
+	// right (dimer)
+	if x < xmax {
 		ns = append(ns, []int{x + 1, y})
 	}
-	// down
-	if y > 0 {
+	// diagonal neighbor labeling depends on parity of y
+	if y%2 == 0 {
+		// down-right
+		if y > 0 {
+			ns = append(ns, []int{x, y - 1})
+		}
+		// up-right
+		if y < ymax {
+			ns = append(ns, []int{x, y + 1})
+		}
+		// down-left
+		if x > 0 && y > 0 {
+			ns = append(ns, []int{x - 1, y - 1})
+		}
+		// up-left
+		if x > 0 && y < ymax {
+			ns = append(ns, []int{x - 1, y + 1})
+		}
+	} else {
+		// odd y ==> know that y > 0
+		// down-right
+		if x < xmax {
+			ns = append(ns, []int{x + 1, y - 1})
+		}
+		// up-right
+		if x < xmax && y < ymax {
+			ns = append(ns, []int{x + 1, y + 1})
+		}
+		// down-left
 		ns = append(ns, []int{x, y - 1})
-	}
-	// up
-	if y < g.Ly()-1 {
-		ns = append(ns, []int{x, y + 1})
+		// up-left
+		if y < ymax {
+			ns = append(ns, []int{x, y + 1})
+		}
 	}
 	return ns
 }

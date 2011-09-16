@@ -29,6 +29,8 @@ func (ps *PointSet) Ly() int {
 }
 
 // Return an arbitary point in the set.
+// This may be inefficient! Depends on whether range ps.data is lazy or if it
+// builds a list of all possible (k, v).
 func (ps *PointSet) Point() (int, int) {
 	for k, v := range ps.data {
 		if v {

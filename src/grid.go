@@ -114,7 +114,8 @@ func (g *Grid) Ly() int {
 	return len(g.data[0])
 }
 
-// Is the point (x, y) within the grid boundaries?
+// Return true if the point (x, y) is within the grid boundaries; return false
+// otherwise.
 func (g *Grid) InBounds(x, y int) bool {
 	if x < 0 || y < 0 || x >= g.Lx() || y >= g.Ly() {
 		return false
@@ -122,27 +123,30 @@ func (g *Grid) InBounds(x, y int) bool {
 	return true
 }
 
-// Get the grid value at (x, y). Panic if (x, y) is out of bounds.
-func (g *Grid) Get(x, y int) bool {
+// If the point (x, y) is not in the grid boundaries, panic. Return true if 
+// the point is within bounds.
+func (g *Grid) CheckBounds(x, y int) bool {
 	if !g.InBounds(x, y) {
 		panic(fmt.Sprintf(GridBoundsError, x, y))
 	}
+	return true
+}
+
+// Get the grid value at (x, y). Panic if (x, y) is out of bounds.
+func (g *Grid) Get(x, y int) bool {
+	g.CheckBounds(x, y)
 	return g.data[x][y]
 }
 
 // Set the grid value at (x, y). Panic if (x, y) is out of bounds.
 func (g *Grid) Set(x, y int, value bool) {
-	if !g.InBounds(x, y) {
-		panic(fmt.Sprintf(GridBoundsError, x, y))
-	}
+	g.CheckBounds(x, y)
 	g.data[x][y] = value
 }
 
 // Flip the grid value at (x, y).  Panic if (x, y) is out of bounds.
 func (g *Grid) Toggle(x, y int) {
-	if !g.InBounds(x, y) {
-		panic(fmt.Sprintf(GridBoundsError, x, y))
-	}
+	g.CheckBounds(x, y)
 	g.data[x][y] = !g.data[x][y]
 }
 
@@ -210,9 +214,7 @@ func (g *Grid) DimerCount() int {
 
 // Return the site which can form a dimer with the given site at (x, y).
 func (g *Grid) DimerPartner(x, y int) (int, int, os.Error) {
-	if !g.InBounds(x, y) {
-		panic(fmt.Sprintf(GridBoundsError, x, y))
-	}
+	g.CheckBounds(x, y)
 	// even site: parter is to the right (if it exists)
 	if x%2 == 0 {
 		// if Lx is odd, last site doesn't have a partner
@@ -259,6 +261,9 @@ func (g *Grid) ActiveSites() *PointSet {
 }
 
 // Return a slice containing each cluster of active sites on the grid.
+// This is -not- the accepted method for doing this search.
+// That method is the 'Hoshen-Kopelman algorithm'. See:
+// http://www.ocf.berkeley.edu/~fricke/projects/hoshenkopelman/hoshenkopelman.html
 func (g *Grid) AllClusters() []*PointSet {
 	clusters := []*PointSet{}
 	unexplored := g.ActiveSites()

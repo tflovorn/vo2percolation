@@ -49,19 +49,19 @@ func (mc *MonteCarlo) validate() bool {
 // perturbation is accepted.
 func (mc *MonteCarlo) Step(e *Energetics, g *Grid) bool {
 	// choose a random site
-	xf, yf := RandomIntPair(g.Lx(), g.Ly())
+	p := RandomPoint(g)
 	// calculate the energy change due to flipping (xf, yf)
-	energyChange := e.SiteFlipEnergy(g, xf, yf)
+	energyChange := e.SiteFlipEnergy(g, p)
 	// going to lower energy: accept it
 	if energyChange < 0 {
-		g.Toggle(xf, yf)
+		g.Toggle(p)
 		return true
 	}
 	// gaining energy: accept if eta + etaMinimum <= e^(-beta*energyChange)
 	log_eta := math.Log(RandomFloat() + mc.etaMinimum)
 	acceptFactor := e.LogBoltzmann(energyChange)
 	if log_eta <= acceptFactor {
-		g.Toggle(xf, yf)
+		g.Toggle(p)
 		return true
 	}
 	return false

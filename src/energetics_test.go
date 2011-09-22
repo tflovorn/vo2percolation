@@ -19,19 +19,19 @@ func TestSiteFlipEnergyKnown(t *testing.T) {
 		t.Fatal(err)
 	}
 	e := NewEnergetics(*env)
-	noDimerDeactivate := e.SiteFlipEnergy(grid, 0, 0)
+	noDimerDeactivate := e.SiteFlipEnergy(grid, Point{0, 0})
 	if noDimerDeactivate != -e.Delta() {
 		t.Fatalf("incorrect result from SiteFlipEnergy (noDimerDeactivate)")
 	}
-	withDimerDeactivate := e.SiteFlipEnergy(grid, 0, 2)
+	withDimerDeactivate := e.SiteFlipEnergy(grid, Point{0, 2})
 	if withDimerDeactivate != -e.Delta()+e.V() {
 		t.Fatalf("incorrect result from SiteFlipEnergy (withDimerDeactivate)")
 	}
-	noDimerActivate := e.SiteFlipEnergy(grid, 0, 1)
+	noDimerActivate := e.SiteFlipEnergy(grid, Point{0, 1})
 	if noDimerActivate != e.Delta() {
 		t.Fatalf("incorrect result from SiteFlipEnergy (noDimerActivate)")
 	}
-	withDimerActivate := e.SiteFlipEnergy(grid, 1, 0)
+	withDimerActivate := e.SiteFlipEnergy(grid, Point{1, 0})
 	if withDimerActivate != e.Delta()-e.V() {
 		t.Fatalf("incorrect result from SiteFlipEnergy (withDimerActivate)")
 	}

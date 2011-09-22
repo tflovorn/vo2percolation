@@ -18,7 +18,7 @@ func TestGridCreation(t *testing.T) {
 	}
 	for x, row := range data {
 		for y, val := range row {
-			if grid.Get(x, y) != val {
+			if grid.Get(Point{x, y}) != val {
 				t.Fatalf("grid holds incorrect value")
 			}
 		}
@@ -33,11 +33,12 @@ func TestGridSet(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if grid.Get(0, 0) != defaultValue {
+	p := Point{0, 0}
+	if grid.Get(p) != defaultValue {
 		t.Fatalf("grid holds incorrect value")
 	}
-	grid.Set(0, 0, !defaultValue)
-	if grid.Get(0, 0) == defaultValue {
+	grid.Set(p, !defaultValue)
+	if grid.Get(p) == defaultValue {
 		t.Fatalf("set failed to change value")
 	}
 }

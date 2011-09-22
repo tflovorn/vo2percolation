@@ -25,12 +25,12 @@ func RandomBool() bool {
 }
 
 // Return a pair of random integer values whose maxima are given by topX, topY.
-func RandomIntPair(topX, topY int) (int, int) {
+func RandomPoint(g *Grid) Point {
 	// one seed for both rand.Intn calls
 	rand.Seed(time.Nanoseconds())
-	randX := rand.Intn(topX)
-	randY := rand.Intn(topY)
-	return randX, randY
+	randX := rand.Intn(g.Lx())
+	randY := rand.Intn(g.Ly())
+	return Point{randX, randY}
 }
 
 // Return a random float64 in the range [0.0, 1.0).

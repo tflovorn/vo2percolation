@@ -24,7 +24,7 @@ type Grid struct {
 }
 
 // Function type for iterating over a Grid
-type GridCallback func(x, y int, value bool)
+type GridCallback func(p Point, value bool)
 
 // Return true if and only if gridData is a M x N rectangle
 // (i.e. all sub-arrays are the same length), where M > 0 and N > 0.
@@ -134,7 +134,8 @@ func (g *Grid) Ly() int {
 
 // Return true if the point (x, y) is within the grid boundaries; return false
 // otherwise.
-func (g *Grid) InBounds(x, y int) bool {
+func (g *Grid) InBounds(p Point) bool {
+	x, y := p.X(), p.Y()
 	if x < 0 || y < 0 || x >= g.Lx() || y >= g.Ly() {
 		return false
 	}
@@ -143,36 +144,37 @@ func (g *Grid) InBounds(x, y int) bool {
 
 // If the point (x, y) is not in the grid boundaries, panic. Return true if 
 // the point is within bounds.
-func (g *Grid) CheckBounds(x, y int) bool {
-	if !g.InBounds(x, y) {
-		panic(fmt.Sprintf(GridBoundsError, x, y))
+func (g *Grid) CheckBounds(p Point) bool {
+	if !g.InBounds(p) {
+		panic(fmt.Sprintf(GridBoundsError, p.X(), p.Y()))
 	}
 	return true
 }
 
 // Get the grid value at (x, y). Panic if (x, y) is out of bounds.
-func (g *Grid) Get(x, y int) bool {
-	g.CheckBounds(x, y)
-	return g.data[x][y]
+func (g *Grid) Get(p Point) bool {
+	g.CheckBounds(p)
+	return g.data[p.X()][p.Y()]
 }
 
 // Set the grid value at (x, y). Panic if (x, y) is out of bounds.
-func (g *Grid) Set(x, y int, value bool) {
-	g.CheckBounds(x, y)
-	g.data[x][y] = value
+func (g *Grid) Set(p Point, value bool) {
+	g.CheckBounds(p)
+	g.data[p.X()][p.Y()] = value
 }
 
 // Flip the grid value at (x, y).  Panic if (x, y) is out of bounds.
-func (g *Grid) Toggle(x, y int) {
-	g.CheckBounds(x, y)
-	g.data[x][y] = !g.data[x][y]
+func (g *Grid) Toggle(p Point) {
+	g.CheckBounds(p)
+	g.Set(p, !g.Get(p))
 }
 
 // Iterate over g, calling f at each site.
 func (g *Grid) Iterate(f GridCallback) {
 	for x := 0; x < g.Lx(); x++ {
 		for y := 0; y < g.Ly(); y++ {
-			f(x, y, g.Get(x, y))
+			p := Point{x, y}
+			f(p, g.Get(p))
 		}
 	}
 }
@@ -183,7 +185,8 @@ func (g *Grid) Copy() *Grid {
 	for x := 0; x < g.Lx(); x++ {
 		nextColumn := []bool{}
 		for y := 0; y < g.Ly(); y++ {
-			nextColumn = append(nextColumn, g.Get(x, y))
+			p := Point{x, y}
+			nextColumn = append(nextColumn, g.Get(p))
 		}
 		copyData = append(copyData, nextColumn)
 	}
@@ -198,7 +201,7 @@ func (g *Grid) Copy() *Grid {
 // Return the number of active sites in g.
 func (g *Grid) ActiveSiteCount() int {
 	count := 0
-	checkSite := func(x, y int, value bool) {
+	checkSite := func(p Point, value bool) {
 		if value {
 			count++
 		}
@@ -212,7 +215,8 @@ func (g *Grid) ActiveSiteCount() int {
 // other dimers).
 func (g *Grid) DimerCount() int {
 	count := 0
-	checkSite := func(x, y int, value bool) {
+	checkSite := func(p Point, value bool) {
+		x, y := p.X(), p.Y()
 		// ignore odd sites to avoid double-counting
 		if x%2 == 1 {
 			return
@@ -222,7 +226,7 @@ func (g *Grid) DimerCount() int {
 			return
 		}
 		// look at the site to the right: count if both are active
-		if value && g.Get(x+1, y) {
+		if value && g.Get(Point{x + 1, y}) {
 			count++
 		}
 	}
@@ -231,31 +235,32 @@ func (g *Grid) DimerCount() int {
 }
 
 // Return the site which can form a dimer with the given site at (x, y).
-func (g *Grid) DimerPartner(x, y int) (int, int, os.Error) {
-	g.CheckBounds(x, y)
+func (g *Grid) DimerPartner(p Point) (Point, os.Error) {
+	g.CheckBounds(p)
+	x, y := p.X(), p.Y()
 	// even site: parter is to the right (if it exists)
 	if x%2 == 0 {
 		// if Lx is odd, last site doesn't have a partner
 		if x+1 == g.Lx() {
-			return -1, -1, fmt.Errorf(DimerPartnerError)
+			return Point{-1, -1}, fmt.Errorf(DimerPartnerError)
 		}
-		return x + 1, y, nil
+		return Point{x + 1, y}, nil
 	}
 	// odd site: partner is to the left
-	return x - 1, y, nil
+	return Point{x - 1, y}, nil
 }
 
 // How would flipping the site at (x, y) affect the number of dimers?
-func (g *Grid) DimerChange(x, y int) int {
-	thisSiteValue := g.Get(x, y)
-	xPartner, yPartner, err := g.DimerPartner(x, y)
+func (g *Grid) DimerChange(p Point) int {
+	thisSiteValue := g.Get(p)
+	partner, err := g.DimerPartner(p)
 	if err != nil {
 		if err.String() == DimerPartnerError {
 			return 0
 		}
 		panic("unexpected error from DimerPartner")
 	}
-	partnerSiteValue := g.Get(xPartner, yPartner)
+	partnerSiteValue := g.Get(partner)
 	if thisSiteValue && partnerSiteValue {
 		return -1
 	}
@@ -300,10 +305,10 @@ func (g *Grid) PointSet() *PointSet {
 // Return a PointSet containing all active sites in the grid.
 func (g *Grid) ActiveSites() *PointSet {
 	ps := g.PointSet()
-	addSite := func(x, y int, value bool) {
+	addSite := func(p Point, value bool) {
 		// only add active sites
 		if value {
-			ps.Add(Point{x, y})
+			ps.Add(p)
 		}
 	}
 	g.Iterate(addSite)
@@ -356,7 +361,7 @@ func (g *Grid) clusterHelper(start Point, ps *PointSet) {
 		panic("must initialize ps in clusterHelper")
 	}
 	// base case: don't go to inactive or already-seen sites
-	if ps.Contains(start) || !g.Get(start.X(), start.Y()) {
+	if ps.Contains(start) || !g.Get(start) {
 		return
 	}
 	// haven't seen this active site yet: add it and try its neighbors

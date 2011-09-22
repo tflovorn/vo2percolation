@@ -64,9 +64,9 @@ func TestGridClusters(t *testing.T) {
 		t.Fatal(err)
 	}
 	knownCluster1, knownCluster2 := grid.PointSet(), grid.PointSet()
-	knownCluster1.Add(0, 0)
-	knownCluster2.Add(0, 2)
-	knownCluster2.Add(1, 2)
+	knownCluster1.Add(Point{0, 0})
+	knownCluster2.Add(Point{0, 2})
+	knownCluster2.Add(Point{1, 2})
 	clusters := grid.AllClusters()
 	for _, ps := range clusters {
 		if !ps.Equals(knownCluster1) && !ps.Equals(knownCluster2) {

@@ -267,23 +267,24 @@ func (g *Grid) DimerChange(x, y int) int {
 
 // Convert from 1D map keys to x-y grid coordinates.  Panics if the key is not
 // on the grid.
-func (g *Grid) convertFrom1D() func(int) (int, int) {
-	return func(key int) (int, int) {
+func (g *Grid) convertFrom1D() func(int) Point {
+	return func(key int) Point {
 		lx, ly := g.Lx(), g.Ly()
 		if key < 0 || key > lx*ly {
 			panic("1D point conversion out of bounds")
 		}
 		y := int(math.Floor(float64(key) / float64(lx)))
 		x := key - lx*y
-		return x, y
+		return Point{x, y}
 	}
 }
 
 // Convert the 2D x-y coordinates in the Lx by Ly discrete grid to a single
 // integer, useful as a map key.  Panics if (x,y) is not on the grid.
-func (g *Grid) convertTo1D() func(int, int) int {
-	return func(x, y int) int {
+func (g *Grid) convertTo1D() func(Point) int {
+	return func(p Point) int {
 		lx, ly := g.Lx(), g.Ly()
+		x, y := p.X(), p.Y()
 		if x < 0 || y < 0 || x > lx || y > ly {
 			panic("1D point conversion out of bounds")
 		}
@@ -302,7 +303,7 @@ func (g *Grid) ActiveSites() *PointSet {
 	addSite := func(x, y int, value bool) {
 		// only add active sites
 		if value {
-			ps.Add(x, y)
+			ps.Add(Point{x, y})
 		}
 	}
 	g.Iterate(addSite)
@@ -317,11 +318,10 @@ func (g *Grid) AllClusters() []*PointSet {
 	clusters := []*PointSet{}
 	unexplored := g.ActiveSites()
 	for unexplored.Size() > 0 {
-		x, y := unexplored.Point()
-		thisCluster := g.Cluster(x, y)
-		for _, point := range thisCluster.Elements() {
-			xr, yr := point[0], point[1]
-			unexplored.Remove(xr, yr)
+		p := unexplored.Point()
+		thisCluster := g.Cluster(p)
+		for _, clusterPoint := range thisCluster.Elements() {
+			unexplored.Remove(clusterPoint)
 		}
 		clusters = append(clusters, thisCluster)
 	}
@@ -344,29 +344,27 @@ func (g *Grid) LargestCluster() *PointSet {
 }
 
 // Return the cluster at (x, y).
-func (g *Grid) Cluster(x, y int) *PointSet {
+func (g *Grid) Cluster(p Point) *PointSet {
 	ps := g.PointSet()
-	g.clusterHelper(x, y, ps)
+	g.clusterHelper(p, ps)
 	return ps
 }
 
 // Add all members of the cluster at (x, y) to ps.
-func (g *Grid) clusterHelper(x, y int, ps *PointSet) {
+func (g *Grid) clusterHelper(start Point, ps *PointSet) {
 	if ps == nil {
 		panic("must initialize ps in clusterHelper")
 	}
 	// base case: don't go to inactive or already-seen sites
-	if ps.Contains(x, y) || !g.Get(x, y) {
+	if ps.Contains(start) || !g.Get(start.X(), start.Y()) {
 		return
 	}
 	// haven't seen this active site yet: add it and try its neighbors
-	ps.Add(x, y)
-	p := Point{x, y}
-	ns := g.Neighbors(p)
+	ps.Add(start)
+	ns := g.Neighbors(start)
 	for _, point := range ns {
-		xn, yn := point.X(), point.Y()
-		if !ps.Contains(xn, yn) {
-			g.clusterHelper(xn, yn, ps)
+		if !ps.Contains(point) {
+			g.clusterHelper(point, ps)
 		}
 	}
 }

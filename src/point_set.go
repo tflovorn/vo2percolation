@@ -3,15 +3,15 @@ package percolation
 
 type PointSet struct {
 	// The PointSet needs to be able to represent a Point as an int.
-	convertFrom1D func(int) (int, int)
-	convertTo1D   func(int, int) int
+	convertFrom1D func(int) Point
+	convertTo1D   func(Point) int
 	// data's keys are 1D coordinates covering the grid.  When the value
 	// associated with a key is true, that key is part of the point set.
 	data map[int]bool
 }
 
 // Create a new point set with grid dimensions (Lx, Ly).
-func NewPointSet(convertFrom1D func(int) (int, int), convertTo1D func(int, int) int) *PointSet {
+func NewPointSet(convertFrom1D func(int) Point, convertTo1D func(Point) int) *PointSet {
 	ps := new(PointSet)
 	ps.convertFrom1D = convertFrom1D
 	ps.convertTo1D = convertTo1D
@@ -22,14 +22,14 @@ func NewPointSet(convertFrom1D func(int) (int, int), convertTo1D func(int, int) 
 // Return an arbitary point in the set.
 // This may be inefficient! Depends on whether range ps.data is lazy or if it
 // builds a list of all possible (k, v).
-func (ps *PointSet) Point() (int, int) {
+func (ps *PointSet) Point() Point {
 	for k, v := range ps.data {
 		if v {
 			return ps.convertFrom1D(k)
 		}
 	}
 	// there are no points in the set
-	return -1, -1
+	panic("requested a point from a set with none in it")
 }
 
 // Return the number of points in the set.
@@ -43,13 +43,13 @@ func (ps *PointSet) Size() int {
 	return count
 }
 
-// Return a slice of all (x, y) points in the set.
-func (ps *PointSet) Elements() [][]int {
-	elements := [][]int{}
+// Return a slice of all points in the set.
+func (ps *PointSet) Elements() []Point {
+	elements := []Point{}
 	for k, v := range ps.data {
 		if v {
-			x, y := ps.convertFrom1D(k)
-			elements = append(elements, []int{x, y})
+			p := ps.convertFrom1D(k)
+			elements = append(elements, p)
 		}
 	}
 	return elements
@@ -63,8 +63,7 @@ func (ps *PointSet) Equals(comp *PointSet) bool {
 	}
 	// check each element
 	for _, point := range comp.Elements() {
-		x, y := point[0], point[1]
-		if !ps.Contains(x, y) {
+		if !ps.Contains(point) {
 			return false
 		}
 	}
@@ -72,8 +71,8 @@ func (ps *PointSet) Equals(comp *PointSet) bool {
 }
 
 // Return true if and only if (x, y) is in the point set.
-func (ps *PointSet) Contains(x, y int) bool {
-	value, ok := ps.data[ps.convertTo1D(x, y)]
+func (ps *PointSet) Contains(p Point) bool {
+	value, ok := ps.data[ps.convertTo1D(p)]
 	if ok {
 		return value
 	}
@@ -81,12 +80,12 @@ func (ps *PointSet) Contains(x, y int) bool {
 }
 
 // Add a point to the set.
-func (ps *PointSet) Add(x, y int) {
-	ps.data[ps.convertTo1D(x, y)] = true
+func (ps *PointSet) Add(p Point) {
+	ps.data[ps.convertTo1D(p)] = true
 }
 
 // Remove a point from the set.
-func (ps *PointSet) Remove(x, y int) {
+func (ps *PointSet) Remove(p Point) {
 	// key is deleted from data
-	ps.data[ps.convertTo1D(x, y)] = false, false
+	ps.data[ps.convertTo1D(p)] = false, false
 }

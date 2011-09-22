@@ -314,7 +314,7 @@ func (g *Grid) clusterHelper(x, y int, ps *PointSet) {
 	ps.Add(x, y)
 	ns := g.Neighbors(x, y)
 	for _, point := range ns {
-		xn, yn := point[0], point[1]
+		xn, yn := point.X(), point.Y()
 		if !ps.Contains(xn, yn) {
 			g.clusterHelper(xn, yn, ps)
 		}
@@ -324,50 +324,65 @@ func (g *Grid) clusterHelper(x, y int, ps *PointSet) {
 // Return a slice containing all neighbors of the given point.
 // A site which isn't on a boundary has 6 neighbors: 2 in the dimer direction
 // and 4 in the diagonal directions.
-func (g *Grid) Neighbors(x, y int) [][]int {
-	ns := [][]int{}
-	xmax, ymax := g.Lx()-1, g.Ly()-1
-	// left (dimer)
+func (g *Grid) Neighbors(x, y int) []Point {
+	ns := []Point{}
+	ns = append(ns, g.DimerNeighbors(x, y)...)
+	ns = append(ns, g.DiagNeighbors(x, y)...)
+	return ns
+}
+
+// Return the dimer-direction neighbors of the given point.
+func (g *Grid) DimerNeighbors(x, y int) []Point {
+	ns := []Point{}
+	xmax := g.Lx() - 1
+	// left
 	if x > 0 {
-		ns = append(ns, []int{x - 1, y})
+		ns = append(ns, Point{x - 1, y})
 	}
-	// right (dimer)
+	// right
 	if x < xmax {
-		ns = append(ns, []int{x + 1, y})
+		ns = append(ns, Point{x + 1, y})
 	}
+	return ns
+}
+
+// Return the diagonal neighbors of the given point.
+func (g *Grid) DiagNeighbors(x, y int) []Point {
+	ns := []Point{}
+	xmax, ymax := g.Lx()-1, g.Ly()-1
 	// diagonal neighbor labeling depends on parity of y
 	if y%2 == 0 {
 		// down-right
 		if y > 0 {
-			ns = append(ns, []int{x, y - 1})
+			ns = append(ns, Point{x, y - 1})
 		}
 		// up-right
 		if y < ymax {
-			ns = append(ns, []int{x, y + 1})
+			ns = append(ns, Point{x, y + 1})
 		}
 		// down-left
 		if x > 0 && y > 0 {
-			ns = append(ns, []int{x - 1, y - 1})
+			ns = append(ns, Point{x - 1, y - 1})
 		}
 		// up-left
 		if x > 0 && y < ymax {
-			ns = append(ns, []int{x - 1, y + 1})
+			ns = append(ns, Point{x - 1, y + 1})
 		}
 	} else {
 		// odd y ==> know that y > 0
 		// down-right
 		if x < xmax {
-			ns = append(ns, []int{x + 1, y - 1})
+			ns = append(ns, Point{x + 1, y - 1})
 		}
 		// up-right
 		if x < xmax && y < ymax {
-			ns = append(ns, []int{x + 1, y + 1})
+			ns = append(ns, Point{x + 1, y + 1})
 		}
 		// down-left
-		ns = append(ns, []int{x, y - 1})
+		ns = append(ns, Point{x, y - 1})
 		// up-left
 		if y < ymax {
-			ns = append(ns, []int{x, y + 1})
+			ns = append(ns, Point{x, y + 1})
 		}
 	}
 	return ns

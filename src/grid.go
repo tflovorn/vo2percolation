@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"rand"
 	"time"
+	"math"
 )
 
 const GridShapeError = "Grid data must be rectangular and contain at least one point"
@@ -53,6 +54,23 @@ func NewGrid(initData [][]bool) (*Grid, os.Error) {
 	grid := new(Grid)
 	grid.data = initData
 	return grid, nil
+}
+
+// Construct an empty grid with the given dimensions.
+func NewGridWithDims(Lx, Ly int) *Grid {
+	data := [][]bool{}
+	for x := 0; x < Lx; x++ {
+		newData := []bool{}
+		for y := 0; y < Ly; y++ {
+			newData = append(newData, false)
+		}
+		data = append(data, newData)
+	}
+	g, err := NewGrid(data)
+	if err != nil {
+		panic("NewGridWithDims failed")
+	}
+	return g
 }
 
 // Generate a random grid of dimensions Lx and Ly.
@@ -247,9 +265,40 @@ func (g *Grid) DimerChange(x, y int) int {
 	return 0
 }
 
+// Convert from 1D map keys to x-y grid coordinates.  Panics if the key is not
+// on the grid.
+func (g *Grid) convertFrom1D() func(int) (int, int) {
+	return func(key int) (int, int) {
+		lx, ly := g.Lx(), g.Ly()
+		if key < 0 || key > lx*ly {
+			panic("1D point conversion out of bounds")
+		}
+		y := int(math.Floor(float64(key) / float64(lx)))
+		x := key - lx*y
+		return x, y
+	}
+}
+
+// Convert the 2D x-y coordinates in the Lx by Ly discrete grid to a single
+// integer, useful as a map key.  Panics if (x,y) is not on the grid.
+func (g *Grid) convertTo1D() func(int, int) int {
+	return func(x, y int) int {
+		lx, ly := g.Lx(), g.Ly()
+		if x < 0 || y < 0 || x > lx || y > ly {
+			panic("1D point conversion out of bounds")
+		}
+		return lx*y + x
+	}
+}
+
+// Return a new PointSet on g.
+func (g *Grid) PointSet() *PointSet {
+	return NewPointSet(g.convertFrom1D(), g.convertTo1D())
+}
+
 // Return a PointSet containing all active sites in the grid.
 func (g *Grid) ActiveSites() *PointSet {
-	ps := NewPointSet(g.Lx(), g.Ly())
+	ps := g.PointSet()
 	addSite := func(x, y int, value bool) {
 		// only add active sites
 		if value {
@@ -296,7 +345,7 @@ func (g *Grid) LargestCluster() *PointSet {
 
 // Return the cluster at (x, y).
 func (g *Grid) Cluster(x, y int) *PointSet {
-	ps := NewPointSet(g.Lx(), g.Ly())
+	ps := g.PointSet()
 	g.clusterHelper(x, y, ps)
 	return ps
 }
@@ -312,7 +361,8 @@ func (g *Grid) clusterHelper(x, y int, ps *PointSet) {
 	}
 	// haven't seen this active site yet: add it and try its neighbors
 	ps.Add(x, y)
-	ns := g.Neighbors(x, y)
+	p := Point{x, y}
+	ns := g.Neighbors(p)
 	for _, point := range ns {
 		xn, yn := point.X(), point.Y()
 		if !ps.Contains(xn, yn) {
@@ -324,17 +374,18 @@ func (g *Grid) clusterHelper(x, y int, ps *PointSet) {
 // Return a slice containing all neighbors of the given point.
 // A site which isn't on a boundary has 6 neighbors: 2 in the dimer direction
 // and 4 in the diagonal directions.
-func (g *Grid) Neighbors(x, y int) []Point {
+func (g *Grid) Neighbors(p Point) []Point {
 	ns := []Point{}
-	ns = append(ns, g.DimerNeighbors(x, y)...)
-	ns = append(ns, g.DiagNeighbors(x, y)...)
+	ns = append(ns, g.DimerNeighbors(p)...)
+	ns = append(ns, g.DiagNeighbors(p)...)
 	return ns
 }
 
 // Return the dimer-direction neighbors of the given point.
-func (g *Grid) DimerNeighbors(x, y int) []Point {
+func (g *Grid) DimerNeighbors(p Point) []Point {
 	ns := []Point{}
 	xmax := g.Lx() - 1
+	x, y := p.X(), p.Y()
 	// left
 	if x > 0 {
 		ns = append(ns, Point{x - 1, y})
@@ -347,9 +398,10 @@ func (g *Grid) DimerNeighbors(x, y int) []Point {
 }
 
 // Return the diagonal neighbors of the given point.
-func (g *Grid) DiagNeighbors(x, y int) []Point {
+func (g *Grid) DiagNeighbors(p Point) []Point {
 	ns := []Point{}
 	xmax, ymax := g.Lx()-1, g.Ly()-1
+	x, y := p.X(), p.Y()
 	// diagonal neighbor labeling depends on parity of y
 	if y%2 == 0 {
 		// down-right

@@ -63,7 +63,7 @@ func TestGridClusters(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	knownCluster1, knownCluster2 := NewPointSet(grid.Lx(), grid.Ly()), NewPointSet(grid.Lx(), grid.Ly())
+	knownCluster1, knownCluster2 := grid.PointSet(), grid.PointSet()
 	knownCluster1.Add(0, 0)
 	knownCluster2.Add(0, 2)
 	knownCluster2.Add(1, 2)

@@ -1,31 +1,22 @@
 // Unordered set of 2D points
 package percolation
 
-import "math"
-
 type PointSet struct {
-	// The dimensions of the grid.
-	lx, ly int
+	// The PointSet needs to be able to represent a Point as an int.
+	convertFrom1D func(int) (int, int)
+	convertTo1D   func(int, int) int
 	// data's keys are 1D coordinates covering the grid.  When the value
 	// associated with a key is true, that key is part of the point set.
 	data map[int]bool
 }
 
 // Create a new point set with grid dimensions (Lx, Ly).
-func NewPointSet(lx, ly int) *PointSet {
+func NewPointSet(convertFrom1D func(int) (int, int), convertTo1D func(int, int) int) *PointSet {
 	ps := new(PointSet)
-	ps.lx = lx
-	ps.ly = ly
+	ps.convertFrom1D = convertFrom1D
+	ps.convertTo1D = convertTo1D
 	ps.data = make(map[int]bool)
 	return ps
-}
-
-func (ps *PointSet) Lx() int {
-	return ps.lx
-}
-
-func (ps *PointSet) Ly() int {
-	return ps.ly
 }
 
 // Return an arbitary point in the set.
@@ -98,24 +89,4 @@ func (ps *PointSet) Add(x, y int) {
 func (ps *PointSet) Remove(x, y int) {
 	// key is deleted from data
 	ps.data[ps.convertTo1D(x, y)] = false, false
-}
-
-// Convert the 2D x-y coordinates in the Lx by Ly discrete grid to a single
-// integer, useful as a map key.  Panics if (x,y) is not on the grid.
-func (ps *PointSet) convertTo1D(x, y int) int {
-	if x < 0 || y < 0 || x > ps.Lx() || y > ps.Ly() {
-		panic("point set access out of bounds")
-	}
-	return ps.Lx()*y + x
-}
-
-// Convert from 1D map keys to x-y grid coordinates.  Panics if the key is not
-// on the grid.
-func (ps *PointSet) convertFrom1D(key int) (int, int) {
-	if key < 0 || key > ps.Lx()*ps.Ly() {
-		panic("point set access out of bounds")
-	}
-	y := int(math.Floor(float64(key) / float64(ps.Lx())))
-	x := key - ps.Lx()*y
-	return x, y
 }

@@ -4,7 +4,8 @@ import "testing"
 
 func TestPointSetContains(t *testing.T) {
 	L := 5
-	ps := NewPointSet(L, L)
+	g := NewGridWithDims(L, L)
+	ps := g.PointSet()
 	for i := 0; i < L; i++ {
 		ps.Add(i, i)
 		if !ps.Contains(i, i) {
@@ -22,7 +23,8 @@ func TestPointSetContains(t *testing.T) {
 
 func TestPointSetElements(t *testing.T) {
 	L := 5
-	ps := NewPointSet(L, L)
+	g := NewGridWithDims(L, L)
+	ps := g.PointSet()
 	for i := 0; i < L; i++ {
 		ps.Add(i, i)
 	}

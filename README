@@ -22,3 +22,9 @@ http://golang.tumblr.com/post/439868556/git-precommit-hook-for-gofmt
 
 with inspiration from:
 http://fraden.brandeis.edu/courses/phys39/simulations/Student%20Ising%20Swarthmore.pdf
+
+matrix.go requires the following packages to build on mint:
+gsl-bin     (?)
+libgsl0ldbl (?)
+libgsl-dev
+libblas-dev (?)

@@ -2,6 +2,8 @@
 *.out
 *.6
 *.8
+*_cgo*
+*.o
 _test/
 _testmain.go
 _obj/

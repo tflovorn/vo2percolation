@@ -35,6 +35,8 @@ func (e *Energetics) AtomicHamiltonian(g *Grid) float64 {
 }
 
 // Energy change corresponding to an active/inactive flip on g at (xf, yf).
+// (only includes change due to the atomic Hamiltonian for now - should also
+// include change in electron energy)
 func (e *Energetics) SiteFlipEnergy(g *Grid, p Point) float64 {
 	siteValue := g.Get(p)
 	dimerChange := g.DimerChange(p)

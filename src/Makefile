@@ -10,6 +10,8 @@ GOFILES=\
 	point.go\
 	point_set.go\
 	random.go\
-	utility.go\
+	utility.go
+CGOFILES=\
+	matrix.go
 
 include $(GOROOT)/src/Make.pkg

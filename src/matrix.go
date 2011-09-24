@@ -23,7 +23,7 @@ type SymmetricMatrix struct {
 }
 
 // Return a new SymmetricMatrix without the empty rows (and columns) in sym.
-// The map returned maps from row indices in the returned matrix to row
+// The map returned converts from row indices in the returned matrix to row
 // indices in the original matrix.
 func (sym *SymmetricMatrix) RemoveEmptyRows() (*SymmetricMatrix, map[int]int) {
 	return nil, nil
@@ -31,18 +31,40 @@ func (sym *SymmetricMatrix) RemoveEmptyRows() (*SymmetricMatrix, map[int]int) {
 
 // Return an ordered slice of the eigenvalues of sym, and a slice of the
 // eigenvectors in the same order.
-func Eigensystem(sym *SymmetricMatrix) ([]float64, [][]float64) {
+func (sym *SymmetricMatrix) Eigensystem() ([]float64, [][]float64) {
 	return nil, nil
 }
 
-func symToMatrix(sym *SymmetricMatrix) *C.gsl_matrix {
+// Return the GSL matrix representation of sym.
+func (sym *SymmetricMatrix) toMatrix() *C.gsl_matrix {
+	// start with a zeroed matrix (m)
+
+	// iterate over rows in sym (row = i)
+
+	// for each column j in the row i: val = sym(i, j)
+	// if diagonal: m(i,j) = val
+	// if not diagonal: m(i,j) = val and m(j, i) = val
 	return nil
 }
 
 func vectorToSlice(v *C.gsl_vector) []float64 {
-	return nil
+	xs := []float64{}
+	var i C.size_t
+	for i = 0; i < v.size; i++ {
+		xs = append(xs, float64(C.gsl_vector_get(v, i)))
+	}
+	return xs
 }
 
 func matrixToSlices(m *C.gsl_matrix) [][]float64 {
-	return nil
+	vectors := [][]float64{}
+	var i, j C.size_t
+	for i = 0; i < m.size1; i++ {
+		xs := []float64{}
+		for j = 0; j < m.size2; j++ {
+			xs = append(xs, float64(C.gsl_matrix_get(m, i, j)))
+		}
+		vectors = append(vectors, xs)
+	}
+	return vectors
 }

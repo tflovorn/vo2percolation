@@ -22,6 +22,45 @@ type SymmetricMatrix struct {
 	data map[int]map[int]float64
 }
 
+// Return a zeroed LxL symmetric matric.
+func NewSymmetricMatrix(L int) *SymmetricMatrix {
+	data := make(map[int]map[int]float64)
+	sym := new(SymmetricMatrix)
+	sym.length = L
+	sym.data = data
+	return sym
+}
+
+// Return the value at row i, column j in sym.
+func (sym *SymmetricMatrix) Get(i, j int) float64 {
+	if i > sym.length || j > sym.length {
+		panic("matrix access out of bounds")
+	}
+	row, ok := sym.data[i]
+	if !ok {
+		return 0
+	}
+	val, ok := row[j]
+	if !ok {
+		return 0
+	}
+	return val
+}
+
+// Set the value at row i, column j in sym to val.
+func (sym *SymmetricMatrix) Set(i, j int, val float64) {
+	if i > sym.length || j > sym.length {
+		panic("matrix access out of bounds")
+	}
+	row, ok := sym.data[i]
+	if !ok {
+		// row doesn't exist yet, need to create it
+		row = make(map[int]float64)
+		sym.data[i] = row
+	}
+	row[j] = val
+}
+
 // Return a new SymmetricMatrix without the empty rows (and columns) in sym.
 // The map returned converts from row indices in the returned matrix to row
 // indices in the original matrix.

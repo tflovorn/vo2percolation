@@ -14,6 +14,8 @@ package percolation
 */
 import "C"
 
+import "fmt"
+
 type SymmetricMatrix struct {
 	// dimensions (symmetric, so lx = ly)
 	length int
@@ -22,7 +24,7 @@ type SymmetricMatrix struct {
 	data map[int]map[int]float64
 }
 
-// Return a zeroed LxL symmetric matric.
+// Return a zeroed LxL symmetric matrix.
 func NewSymmetricMatrix(L int) *SymmetricMatrix {
 	data := make(map[int]map[int]float64)
 	sym := new(SymmetricMatrix)
@@ -38,7 +40,16 @@ func (sym *SymmetricMatrix) Get(i, j int) float64 {
 	}
 	row, ok := sym.data[i]
 	if !ok {
-		return 0
+		otherRow, ok := sym.data[j]
+		if !ok {
+			return 0
+		} else {
+			val, ok := otherRow[i]
+			if !ok {
+				return 0
+			}
+			return val
+		}
 	}
 	val, ok := row[j]
 	if !ok {
@@ -56,16 +67,44 @@ func (sym *SymmetricMatrix) Set(i, j int, val float64) {
 	if !ok {
 		// row doesn't exist yet, need to create it
 		row = make(map[int]float64)
+		row[j] = val
 		sym.data[i] = row
+	} else {
+		sym.data[i][j] = val
 	}
-	row[j] = val
 }
 
 // Return a new SymmetricMatrix without the empty rows (and columns) in sym.
 // The map returned converts from row indices in the returned matrix to row
 // indices in the original matrix.
 func (sym *SymmetricMatrix) RemoveEmptyRows() (*SymmetricMatrix, map[int]int) {
-	return nil, nil
+	convert := make(map[int]int)
+	newIndex := 0
+	// Want to know the number of non-empty rows and build the conversion
+	// map before we create the output matrix.
+	for i, row := range sym.data {
+		// Make sure this row isn't all zeros before we accept it.
+		empty := true
+		for _, val := range row {
+			if val != 0.0 {
+				empty = false
+				break
+			}
+		}
+		if !empty {
+			convert[newIndex] = i
+			newIndex++
+		}
+	}
+	// newIndex is now equal to the number of nonempty rows
+	newMatrix := NewSymmetricMatrix(newIndex)
+	for i, row := range sym.data {
+		for j, val := range row {
+			iNew, jNew := convert[i], convert[j]
+			newMatrix.Set(iNew, jNew, val)
+		}
+	}
+	return newMatrix, convert
 }
 
 // Return an ordered slice of the eigenvalues of sym, and a slice of the
@@ -84,6 +123,18 @@ func (sym *SymmetricMatrix) toMatrix() *C.gsl_matrix {
 	// if diagonal: m(i,j) = val
 	// if not diagonal: m(i,j) = val and m(j, i) = val
 	return nil
+}
+
+func (sym *SymmetricMatrix) String() string {
+	out := ""
+	for i := 0; i < sym.length; i++ {
+		outRow := ""
+		for j := 0; j < sym.length; j++ {
+			outRow += fmt.Sprint(sym.Get(i, j)) + " "
+		}
+		out += outRow + "\n"
+	}
+	return out
 }
 
 func vectorToSlice(v *C.gsl_vector) []float64 {

@@ -31,11 +31,15 @@ func TestRemoveEmptyRowsDouble(t *testing.T) {
 	val := 5.0
 	sym.Set(2, 2, val)
 	sym.Set(1, 3, val)
-	newSym, _ := sym.RemoveEmptyRows()
+	newSym, convert := sym.RemoveEmptyRows()
 	if newSym.length != 3 {
 		t.Fatalf("unexpected length after removing empty rows")
 	}
 	if newSym.Get(0, 2) != val || newSym.Get(1, 1) != val || newSym.Get(2, 0) != val {
 		t.Fatalf("unexpected value returned from sym.Get after RemoveEmptyRows()")
+	}
+	rebuild := newSym.ReconstructEmptyRows(convert, 5)
+	if !rebuild.Equals(sym) {
+		t.Fatalf("reconstructed matrix differs from original")
 	}
 }

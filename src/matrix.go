@@ -33,6 +33,11 @@ func NewSymmetricMatrix(L int) *SymmetricMatrix {
 	return sym
 }
 
+// Return the length of the matrix represented by sym
+func (sym *SymmetricMatrix) Length() int {
+	return sym.length
+}
+
 // Return the value at row i, column j in sym.
 func (sym *SymmetricMatrix) Get(i, j int) float64 {
 	if i > sym.length || j > sym.length {
@@ -82,6 +87,26 @@ func (sym *SymmetricMatrix) Set(i, j int, val float64) {
 	}
 }
 
+// Return true if and only if sym and comp represent the same matrix.
+func (sym *SymmetricMatrix) Equals(comp *SymmetricMatrix) bool {
+	// Need to iterate over both matrices since we skip zeroed elements.
+	for i, row := range sym.data {
+		for j, val := range row {
+			if comp.Get(i, j) != val {
+				return false
+			}
+		}
+	}
+	for i, row := range comp.data {
+		for j, val := range row {
+			if sym.Get(i, j) != val {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 // Return a new SymmetricMatrix without the empty rows (and columns) in sym.
 // The map returned converts from row indices in the returned matrix to row
 // indices in the original matrix.
@@ -121,6 +146,21 @@ func (sym *SymmetricMatrix) RemoveEmptyRows() (*SymmetricMatrix, map[int]int) {
 		}
 	}
 	return newMatrix, convert
+}
+
+// Return a new SymmetricMatrix derived from sym with convert, which is a map
+// from the indices in sym to the indices in the returned matrix.
+// The length of the returned matrix is given by length.
+// All rows of the returned matrix which are not given in convert are zeroed.
+func (sym *SymmetricMatrix) ReconstructEmptyRows(convert map[int]int, length int) *SymmetricMatrix {
+	retMatrix := NewSymmetricMatrix(length)
+	for i, row := range sym.data {
+		for j, val := range row {
+			iRet, jRet := convert[i], convert[j]
+			retMatrix.Set(iRet, jRet, val)
+		}
+	}
+	return retMatrix
 }
 
 // Return an ordered slice of the eigenvalues of sym, and a slice of the

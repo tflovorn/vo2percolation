@@ -71,6 +71,14 @@ func (sym *SymmetricMatrix) Set(i, j int, val float64) {
 		sym.data[i] = row
 	} else {
 		sym.data[i][j] = val
+		// need to keep symmetric data consistent
+		if i != j {
+			if otherRow, ok := sym.data[j]; ok {
+				if _, ok := otherRow[i]; ok {
+					otherRow[i] = val
+				}
+			}
+		}
 	}
 }
 
@@ -78,30 +86,38 @@ func (sym *SymmetricMatrix) Set(i, j int, val float64) {
 // The map returned converts from row indices in the returned matrix to row
 // indices in the original matrix.
 func (sym *SymmetricMatrix) RemoveEmptyRows() (*SymmetricMatrix, map[int]int) {
-	convert := make(map[int]int)
-	newIndex := 0
-	// Want to know the number of non-empty rows and build the conversion
-	// map before we create the output matrix.
-	for i, row := range sym.data {
-		// Make sure this row isn't all zeros before we accept it.
-		empty := true
-		for _, val := range row {
-			if val != 0.0 {
-				empty = false
-				break
-			}
-		}
-		if !empty {
-			convert[newIndex] = i
-			newIndex++
-		}
-	}
-	// newIndex is now equal to the number of nonempty rows
-	newMatrix := NewSymmetricMatrix(newIndex)
+	nonEmpty, convert := make([]bool, sym.length), make(map[int]int)
+	// Build a list of non-empty rows.
 	for i, row := range sym.data {
 		for j, val := range row {
-			iNew, jNew := convert[i], convert[j]
-			newMatrix.Set(iNew, jNew, val)
+			if val != 0.0 {
+				if i != j {
+					nonEmpty[i] = true
+					nonEmpty[j] = true
+				} else {
+					nonEmpty[i] = true
+				}
+			}
+		}
+	}
+	// Count the number of non-empty rows and build the map from the old
+	// indexing to the indexing without empty rows.
+	iNew := 0
+	for iOld, val := range nonEmpty {
+		if val {
+			convert[iNew] = iOld
+			iNew++
+		}
+	}
+	// Build the matrix without empty rows and columns.
+	newMatrix := NewSymmetricMatrix(iNew)
+	for i := 0; i < iNew; i++ {
+		for j := i; j < iNew; j++ {
+			iOld, jOld := convert[i], convert[j]
+			val := sym.Get(iOld, jOld)
+			if val != 0.0 {
+				newMatrix.Set(i, j, val)
+			}
 		}
 	}
 	return newMatrix, convert

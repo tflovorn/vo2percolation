@@ -89,6 +89,9 @@ func (sym *SymmetricMatrix) Set(i, j int, val float64) {
 
 // Return true if and only if sym and comp represent the same matrix.
 func (sym *SymmetricMatrix) Equals(comp *SymmetricMatrix) bool {
+	if sym.length != comp.length {
+		return false
+	}
 	// Need to iterate over both matrices since we skip zeroed elements.
 	for i, row := range sym.data {
 		for j, val := range row {

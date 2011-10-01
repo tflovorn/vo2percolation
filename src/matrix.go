@@ -166,13 +166,40 @@ func (sym *SymmetricMatrix) ReconstructEmptyRows(convert map[int]int, length int
 	return retMatrix
 }
 
+func InsertEmptyRows(orig [][]float64, convert map[int]int, length int) [][]float64 {
+	// initialize the return slice to zeros
+	retSlice := make([][]float64, length)
+	for i := 0; i < length; i++ {
+		retSlice = append(retSlice, make([]float64, length))
+	}
+	// iterate over possible new labels
+	for i := 0; i < length; i++ {
+		oldI, ok := convert[i]
+		if ok {
+			// row/col is nonzero, copy values from orig
+			for j := 0; j < length; j++ {
+				oldJ, ok := convert[j]
+				if ok {
+					// this element is nonzero
+					val := orig[oldI][oldJ]
+					retSlice[i][j] = val
+					retSlice[j][i] = val
+				}
+			}
+		}
+	}
+	return retSlice
+}
+
 // Return an ordered slice of the eigenvalues of sym, and a slice of the
 // eigenvectors in the same order.
 func (sym *SymmetricMatrix) Eigensystem() ([]float64, [][]float64) {
-	size := C.size_t(sym.length)
+	originalSize := sym.length
+	reduced, convert := sym.RemoveEmptyRows()
+	size := C.size_t(reduced.length)
 	eigenvalues := C.gsl_vector_alloc(size)
 	eigenvectors := C.gsl_matrix_alloc(size, size)
-	matrix := sym.toMatrix()
+	matrix := reduced.toMatrix()
 	work := C.gsl_eigen_symmv_alloc(size)
 	err := C.gsl_eigen_symmv(matrix, eigenvalues, eigenvectors, work)
 	if err != 0 {
@@ -183,7 +210,9 @@ func (sym *SymmetricMatrix) Eigensystem() ([]float64, [][]float64) {
 	C.gsl_vector_free(eigenvalues)
 	C.gsl_matrix_free(eigenvectors)
 	C.gsl_matrix_free(matrix)
-	return goEigenvalues, goEigenvectors
+	C.gsl_eigen_symmv_free(work)
+	retEigenvectors := InsertEmptyRows(goEigenvectors, convert, originalSize)
+	return goEigenvalues, retEigenvectors
 }
 
 // Return the GSL matrix representation of sym.

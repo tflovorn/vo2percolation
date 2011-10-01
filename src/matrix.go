@@ -169,19 +169,40 @@ func (sym *SymmetricMatrix) ReconstructEmptyRows(convert map[int]int, length int
 // Return an ordered slice of the eigenvalues of sym, and a slice of the
 // eigenvectors in the same order.
 func (sym *SymmetricMatrix) Eigensystem() ([]float64, [][]float64) {
-	return nil, nil
+	size := C.size_t(sym.length)
+	eigenvalues := C.gsl_vector_alloc(size)
+	eigenvectors := C.gsl_matrix_alloc(size, size)
+	matrix := sym.toMatrix()
+	work := C.gsl_eigen_symmv_alloc(size)
+	err := C.gsl_eigen_symmv(matrix, eigenvalues, eigenvectors, work)
+	if err != 0 {
+		// handle it
+	}
+	goEigenvalues := vectorToSlice(eigenvalues)
+	goEigenvectors := matrixToSlices(eigenvectors)
+	C.gsl_vector_free(eigenvalues)
+	C.gsl_matrix_free(eigenvectors)
+	C.gsl_matrix_free(matrix)
+	return goEigenvalues, goEigenvectors
 }
 
 // Return the GSL matrix representation of sym.
 func (sym *SymmetricMatrix) toMatrix() *C.gsl_matrix {
-	// start with a zeroed matrix (m)
-
-	// iterate over rows in sym (row = i)
-
-	// for each column j in the row i: val = sym(i, j)
-	// if diagonal: m(i,j) = val
-	// if not diagonal: m(i,j) = val and m(j, i) = val
-	return nil
+	// start with a zeroed matrix
+	size := C.size_t(sym.length)
+	matrix := C.gsl_matrix_calloc(size, size)
+	// iterate over sym, setting the corresponding elements in matrix
+	for i, row := range sym.data {
+		for j, val := range row {
+			it, jt := C.size_t(i), C.size_t(j)
+			dval := C.double(val)
+			C.gsl_matrix_set(matrix, it, jt, dval)
+			if i != j {
+				C.gsl_matrix_set(matrix, jt, it, dval)
+			}
+		}
+	}
+	return matrix
 }
 
 func (sym *SymmetricMatrix) String() string {

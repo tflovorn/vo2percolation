@@ -81,7 +81,7 @@ func TestGridClusters(t *testing.T) {
 }
 
 // A RandomConstrainedGrid should start with the number of active sites we
-// tell it to have
+// tell it to have.
 func TestRandomConstrainedGridCreation(t *testing.T) {
 	activeSites := 128
 	L := 64

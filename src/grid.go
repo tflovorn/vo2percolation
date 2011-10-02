@@ -71,23 +71,6 @@ func NewGridWithDims(Lx, Ly int) *Grid {
 	return g
 }
 
-// Generate a random grid of dimensions Lx and Ly.
-func RandomGrid(Lx, Ly int) (*Grid, os.Error) {
-	// must have at least one site
-	if Lx <= 0 || Ly <= 0 {
-		return nil, fmt.Errorf("invalid grid dimensions")
-	}
-	// build the random grid
-	data := [][]bool{}
-	for x := 0; x < Lx; x++ {
-		data := append(data, []bool{})
-		for y := 0; y < Ly; y++ {
-			data[x] = append(data[x], RandomBool())
-		}
-	}
-	return NewGrid(data)
-}
-
 // Generate a random grid of dimensions Lx and Ly with N active sites.
 func RandomConstrainedGrid(Lx, Ly, N int) (*Grid, os.Error) {
 	// must have at least one site

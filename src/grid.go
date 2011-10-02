@@ -56,17 +56,17 @@ func NewGrid(initData [][]bool) (*Grid, os.Error) {
 
 // Construct an empty grid with the given dimensions.
 func NewGridWithDims(Lx, Ly int) *Grid {
-	data := [][]bool{}
+	data := make([][]bool, Lx)
 	for x := 0; x < Lx; x++ {
-		newData := []bool{}
+		newData := make([]bool, Ly)
 		for y := 0; y < Ly; y++ {
-			newData = append(newData, false)
+			newData[y] = false
 		}
-		data = append(data, newData)
+		data[x] = newData
 	}
 	g, err := NewGrid(data)
 	if err != nil {
-		panic("NewGridWithDims failed")
+		panic("NewGridWithDims failed: " + err.String())
 	}
 	return g
 }

@@ -272,7 +272,7 @@ func (g *Grid) DimerChange(p Point) int {
 
 // Convert from 1D map keys to x-y grid coordinates.  Panics if the key is not
 // on the grid.
-func (g *Grid) convertFrom1D() func(int) Point {
+func (g *Grid) ConvertFrom1D() func(int) Point {
 	return func(key int) Point {
 		lx, ly := g.Lx(), g.Ly()
 		if key < 0 || key > lx*ly {
@@ -286,7 +286,7 @@ func (g *Grid) convertFrom1D() func(int) Point {
 
 // Convert the 2D x-y coordinates in the Lx by Ly discrete grid to a single
 // integer, useful as a map key.  Panics if (x,y) is not on the grid.
-func (g *Grid) convertTo1D() func(Point) int {
+func (g *Grid) ConvertTo1D() func(Point) int {
 	return func(p Point) int {
 		lx, ly := g.Lx(), g.Ly()
 		x, y := p.X(), p.Y()
@@ -299,7 +299,7 @@ func (g *Grid) convertTo1D() func(Point) int {
 
 // Return a new PointSet on g.
 func (g *Grid) PointSet() *PointSet {
-	return NewPointSet(g.convertFrom1D(), g.convertTo1D())
+	return NewPointSet(g.ConvertFrom1D(), g.ConvertTo1D())
 }
 
 // Return a PointSet containing all active sites in the grid.

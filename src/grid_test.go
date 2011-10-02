@@ -79,3 +79,23 @@ func TestGridClusters(t *testing.T) {
 		t.Fatalf("incorrect largest cluster")
 	}
 }
+
+// A RandomConstrainedGrid should start with the number of active sites we
+// tell it to have
+func TestRandomConstrainedGridCreation(t *testing.T) {
+	activeSites := 128
+	L := 64
+	grid, err := RandomConstrainedGrid(L, L, activeSites)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if grid.ActiveSiteCount() != activeSites {
+		t.Fatalf("RandomConstrainedGrid did not start with the requested number of active sites")
+	}
+}
+
+// The performance of AllClusters should scale linearly with the number of
+// sites in the grid.  Does it?
+func TestAllClustersPerformance(t *testing.T) {
+
+}

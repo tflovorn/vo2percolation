@@ -9,8 +9,6 @@ package percolation
 import (
 	"os"
 	"fmt"
-	"rand"
-	"time"
 	"math"
 )
 
@@ -96,30 +94,23 @@ func RandomConstrainedGrid(Lx, Ly, N int) (*Grid, os.Error) {
 	if Lx <= 0 || Ly <= 0 {
 		return nil, fmt.Errorf("invalid grid dimensions")
 	}
-	// silently deal with N < 0 and N > Lx * Ly
+	// silently deal with invalid N values
 	if N < 0 {
 		N = 0
 	} else if N > Lx*Ly {
 		N = Lx * Ly
 	}
 	// build the empty grid
-	data := [][]bool{}
-	for x := 0; x < Lx; x++ {
-		data := append(data, []bool{})
-		for y := 0; y < Ly; y++ {
-			data[x] = append(data[x], true)
-		}
-	}
+	grid := NewGridWithDims(Lx, Ly)
 	// activate random sites
-	random := rand.New(rand.NewSource(time.Nanoseconds()))
 	for activeCount := 0; activeCount < N; {
-		x, y := random.Intn(Lx), random.Intn(Ly)
-		if !data[x][y] {
-			data[x][y] = true
+		p := RandomPoint(grid)
+		if !grid.Get(p) {
+			grid.Set(p, true)
 			activeCount += 1
 		}
 	}
-	return NewGrid(data)
+	return grid, nil
 }
 
 // Width of the grid.

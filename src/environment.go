@@ -20,21 +20,22 @@ type Environment struct {
 
 // Build an Environment from the JSON file at filePath.
 func EnvironmentFromFile(filePath string) (*Environment, os.Error) {
-	env := new(Environment)
-	err := CopyFromFile(filePath, env)
-	if err != nil {
-		return nil, err
-	}
-	if !env.validate() {
-		return nil, fmt.Errorf(EnvironmentValidateError)
-	}
-	return env, nil
+	return buildEnvironment(func(env *Environment) os.Error {
+		return CopyFromFile(filePath, env)
+	})
 }
 
 // Build an Environment from the given JSON string.
 func EnvironmentFromString(jsonData string) (*Environment, os.Error) {
+	return buildEnvironment(func(env *Environment) os.Error {
+		return CopyFromString(jsonData, env)
+	})
+}
+
+// Build an environment using the given copy function.
+func buildEnvironment(copier func(*Environment) os.Error) (*Environment, os.Error) {
 	env := new(Environment)
-	err := CopyFromString(jsonData, env)
+	err := copier(env)
 	if err != nil {
 		return nil, err
 	}

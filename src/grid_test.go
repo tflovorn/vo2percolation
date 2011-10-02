@@ -2,6 +2,8 @@ package percolation
 
 import (
 	"testing"
+	"math"
+	"time"
 )
 
 var defaultData [][]bool = [][]bool{[]bool{true, false, true}, []bool{false, false, true}}
@@ -96,6 +98,45 @@ func TestRandomConstrainedGridCreation(t *testing.T) {
 
 // The performance of AllClusters should scale linearly with the number of
 // sites in the grid.  Does it?
+// (lots of code stolen from PointSetPerformance test, may want a common
+// framework for grid benchmarks.)
 func TestAllClustersPerformance(t *testing.T) {
-
+	failureRatio := 1.5
+	startN := 1024
+	scaleN := 4
+	N, firstTimeRatio := startN, 0.0
+	minIters := 4
+	minStopN := startN * int(math.Ceil(math.Pow(float64(scaleN), float64(minIters-1))))
+	// Percolation threshold is ~0.59 on square lattice.
+	// What is the threshold for our restricted rhombic lattice?
+	activeFraction := 0.5
+	for totalElapsed := int64(0); totalElapsed < 5e8 || N <= minStopN; N *= scaleN {
+		initTime := time.Nanoseconds()
+		// Initialize the random grid with N sites.
+		// A constant fraction of these sites are active.
+		activeN := int(activeFraction * float64(N))
+		L := int(math.Ceil(math.Sqrt(float64(N))))
+		grid, err := RandomConstrainedGrid(L, L, activeN)
+		if err != nil {
+			t.Fatal(err)
+		}
+		// How long does it take to find all the clusters?
+		// Repeat the process a constant number of times.
+		repeatCount := 1
+		retrieveStartTime := time.Nanoseconds()
+		for i := 0; i < repeatCount; i++ {
+			grid.AllClusters()
+		}
+		endTime := time.Nanoseconds()
+		retrieveTime := endTime - retrieveStartTime
+		totalElapsed = endTime - initTime
+		if N == startN {
+			firstTimeRatio = float64(retrieveTime) / float64(N)
+		} else {
+			retrieveTimeRatio := float64(retrieveTime) / float64(N)
+			if retrieveTimeRatio > failureRatio*firstTimeRatio {
+				t.Fatalf("KNOWN BUG: time to run Grid.AllClusters() is scaling faster than O(n) wrt Grid size")
+			}
+		}
+	}
 }

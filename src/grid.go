@@ -54,16 +54,14 @@ func NewGrid(initData [][]bool) (*Grid, os.Error) {
 	return grid, nil
 }
 
-// Construct an empty grid with the given dimensions.
+// Construct an grid of dimensions Lx and Ly where all sites are inactive.
 func NewGridWithDims(Lx, Ly int) *Grid {
+	// initialize the grid data
 	data := make([][]bool, Lx)
 	for x := 0; x < Lx; x++ {
-		newData := make([]bool, Ly)
-		for y := 0; y < Ly; y++ {
-			newData[y] = false
-		}
-		data[x] = newData
+		data[x] = make([]bool, Ly)
 	}
+	// make the Grid
 	g, err := NewGrid(data)
 	if err != nil {
 		panic("NewGridWithDims failed: " + err.String())

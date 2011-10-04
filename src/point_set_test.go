@@ -2,8 +2,10 @@ package percolation
 
 import (
 	"testing"
+	/* for performance test
 	"math"
 	"time"
+	*/
 )
 
 func TestPointSetContains(t *testing.T) {
@@ -42,6 +44,7 @@ func TestPointSetElements(t *testing.T) {
 	}
 }
 
+/*
 // Retrieving an arbitrary point from a PointSet should be O(1) with respect
 // to the size of the PointSet.
 func TestPointFromPointSetPerformance(t *testing.T) {
@@ -80,3 +83,4 @@ func TestPointFromPointSetPerformance(t *testing.T) {
 		}
 	}
 }
+*/

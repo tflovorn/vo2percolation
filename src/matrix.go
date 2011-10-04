@@ -43,18 +43,12 @@ func (sym *SymmetricMatrix) Get(i, j int) float64 {
 	if i > sym.length || j > sym.length {
 		panic("matrix access out of bounds")
 	}
+	if i > j {
+		i, j = j, i
+	}
 	row, ok := sym.data[i]
 	if !ok {
-		otherRow, ok := sym.data[j]
-		if !ok {
-			return 0
-		} else {
-			val, ok := otherRow[i]
-			if !ok {
-				return 0
-			}
-			return val
-		}
+		return 0
 	}
 	val, ok := row[j]
 	if !ok {
@@ -68,6 +62,9 @@ func (sym *SymmetricMatrix) Set(i, j int, val float64) {
 	if i > sym.length || j > sym.length {
 		panic("matrix access out of bounds")
 	}
+	if i > j {
+		i, j = j, i
+	}
 	row, ok := sym.data[i]
 	if !ok {
 		// row doesn't exist yet, need to create it
@@ -76,14 +73,6 @@ func (sym *SymmetricMatrix) Set(i, j int, val float64) {
 		sym.data[i] = row
 	} else {
 		sym.data[i][j] = val
-		// need to keep symmetric data consistent
-		if i != j {
-			if otherRow, ok := sym.data[j]; ok {
-				if _, ok := otherRow[i]; ok {
-					otherRow[i] = val
-				}
-			}
-		}
 	}
 }
 
@@ -170,7 +159,7 @@ func InsertEmptyRows(orig [][]float64, convert map[int]int, length int) [][]floa
 	// initialize the return slice to zeros
 	retSlice := make([][]float64, length)
 	for i := 0; i < length; i++ {
-		retSlice = append(retSlice, make([]float64, length))
+		retSlice[i] = make([]float64, length)
 	}
 	// iterate over possible new labels
 	for i := 0; i < length; i++ {
@@ -183,7 +172,6 @@ func InsertEmptyRows(orig [][]float64, convert map[int]int, length int) [][]floa
 					// this element is nonzero
 					val := orig[oldI][oldJ]
 					retSlice[i][j] = val
-					retSlice[j][i] = val
 				}
 			}
 		}
@@ -206,7 +194,7 @@ func (sym *SymmetricMatrix) Eigensystem() ([]float64, [][]float64) {
 		// handle it
 	}
 	goEigenvalues := vectorToSlice(eigenvalues)
-	goEigenvectors := matrixToSlices(eigenvectors)
+	goEigenvectors := matrixColumnsToSlices(eigenvectors)
 	C.gsl_vector_free(eigenvalues)
 	C.gsl_matrix_free(eigenvectors)
 	C.gsl_matrix_free(matrix)
@@ -255,13 +243,13 @@ func vectorToSlice(v *C.gsl_vector) []float64 {
 	return xs
 }
 
-func matrixToSlices(m *C.gsl_matrix) [][]float64 {
+func matrixColumnsToSlices(m *C.gsl_matrix) [][]float64 {
 	vectors := [][]float64{}
 	var i, j C.size_t
 	for i = 0; i < m.size1; i++ {
 		xs := []float64{}
 		for j = 0; j < m.size2; j++ {
-			xs = append(xs, float64(C.gsl_matrix_get(m, i, j)))
+			xs = append(xs, float64(C.gsl_matrix_get(m, j, i)))
 		}
 		vectors = append(vectors, xs)
 	}

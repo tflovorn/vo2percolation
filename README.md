@@ -5,7 +5,7 @@ gsl-bin
 libgsl0ldbl
 libgsl0-dev
 
---Description of the model:
+__Description of the model__
 
 Ground state: atoms are all dimerized, which prevents long-range hopping. 
 Atoms can be thermally excited to the metallic state.
@@ -24,7 +24,7 @@ Diagonalizing the electron hopping Hamiltonian isn't trivial.
 Need a strategy to estimate whether a configuration of nu(i)'s is worth allowing
  before diagonalization.
 
---Notes:
+__Notes__
 
 Monte Carlo implementation inspired by [this one in Fortran](http://fraden.brandeis.edu/courses/phys39/simulations/Student%20Ising%20Swarthmore.pdf).
 

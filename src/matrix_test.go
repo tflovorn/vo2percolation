@@ -46,9 +46,9 @@ func TestRemoveEmptyRowsDouble(t *testing.T) {
 }
 
 func TestInsertEmptyRows(t *testing.T) {
-	orig := [][]float64{[]float64{2.0, 1.0}, []float64{1.0, 2.0}}
-	convert := map[int]int{0: 0, 2: 1}
-	n := InsertEmptyRows(orig, convert, 3)
+	reduced := [][]float64{[]float64{2.0, 1.0}, []float64{1.0, 2.0}}
+	convert := map[int]int{0: 0, 1: 2}
+	n := InsertEmptyRows(reduced, convert, 3)
 	expected := [][]float64{[]float64{2.0, 0.0, 1.0}, []float64{0.0, 0.0, 0.0}, []float64{1.0, 0.0, 2.0}}
 	for i := 0; i < len(n); i++ {
 		for j := 0; j < len(n); j++ {
@@ -59,7 +59,7 @@ func TestInsertEmptyRows(t *testing.T) {
 	}
 }
 
-func TestEigensystem(t *testing.T) {
+func TestEigensystem2x2(t *testing.T) {
 	sym := NewSymmetricMatrix(2)
 	sym.Set(0, 0, 2.0)
 	sym.Set(1, 0, 1.0)
@@ -77,4 +77,25 @@ func TestEigensystem(t *testing.T) {
 	if neq(vs[0][0], x) || neq(vs[0][1], x) || neq(vs[1][0], -x) || neq(vs[1][1], x) {
 		t.Fatalf("incorrect eigenvector returned")
 	}
+}
+
+func TestEigensystem3x3WithZeros(t *testing.T) {
+	sym := NewSymmetricMatrix(3)
+	sym.Set(0, 0, 2.0)
+	sym.Set(2, 0, 1.0)
+	sym.Set(2, 2, 2.0)
+	vals, vs := sym.Eigensystem()
+	eps := 1e-12
+	neq := func(x float64, y float64) bool {
+		return math.Fabs(x-y) > eps
+	}
+	// this could fail if the order of returned eigenvalues changes
+	if neq(vals[0], 3.0) || neq(vals[1], 1.0) {
+		t.Fatalf("incorrect eigenvalue returned")
+	}
+	x := 1.0 / math.Sqrt(2.0)
+	if neq(vs[0][0], x) || neq(vs[0][2], x) || neq(vs[2][0], -x) || neq(vs[2][2], x) {
+		t.Fatalf("incorrect eigenvector returned")
+	}
+
 }

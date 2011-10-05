@@ -155,23 +155,23 @@ func (sym *SymmetricMatrix) ReconstructEmptyRows(convert map[int]int, length int
 	return retMatrix
 }
 
-func InsertEmptyRows(orig [][]float64, convert map[int]int, length int) [][]float64 {
+func InsertEmptyRows(reduced [][]float64, convert map[int]int, length int) [][]float64 {
 	// initialize the return slice to zeros
 	retSlice := make([][]float64, length)
 	for i := 0; i < length; i++ {
 		retSlice[i] = make([]float64, length)
 	}
 	// iterate over possible new labels
-	for i := 0; i < length; i++ {
+	for i := 0; i < len(reduced); i++ {
 		oldI, ok := convert[i]
 		if ok {
 			// row/col is nonzero, copy values from orig
-			for j := 0; j < length; j++ {
+			for j := 0; j < len(reduced); j++ {
 				oldJ, ok := convert[j]
 				if ok {
 					// this element is nonzero
-					val := orig[oldI][oldJ]
-					retSlice[i][j] = val
+					val := reduced[i][j]
+					retSlice[oldI][oldJ] = val
 				}
 			}
 		}

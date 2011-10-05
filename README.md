@@ -1,5 +1,12 @@
 Percolation model of VO2.
 
+Requires the following packages to build on Mint Debian:
+gsl-bin
+libgsl0ldbl
+libgsl0-dev
+
+--Description of the model:
+
 Ground state: atoms are all dimerized, which prevents long-range hopping. 
 Atoms can be thermally excited to the metallic state.
 
@@ -10,21 +17,15 @@ Electrons hop within a percolation network of metallic atoms.
 Hopping onto dimer sites is renormalized away, leading to nnn hopping within
  the metal.
 
-First step: Ising-like Monte Carlo in atom excitation variables {Nu_i=0, 1}.
+First step: Ising-like Monte Carlo in atom excitation variables {nu(i)=0, 1}.
 Study the formation of the percolation network without including electrons.
 
 Diagonalizing the electron hopping Hamiltonian isn't trivial.  
-Need a strategy to estimate whether a configuration of Nu_i's is worth allowing
+Need a strategy to estimate whether a configuration of nu(i)'s is worth allowing
  before diagonalization.
 
-gofmt pre-commit hook is helpful:
-http://golang.tumblr.com/post/439868556/git-precommit-hook-for-gofmt
+--Notes:
 
-with inspiration from:
-http://fraden.brandeis.edu/courses/phys39/simulations/Student%20Ising%20Swarthmore.pdf
+Monte Carlo implementation inspired by [this one in Fortran](http://fraden.brandeis.edu/courses/phys39/simulations/Student%20Ising%20Swarthmore.pdf).
 
-matrix.go requires the following packages to build on mint:
-gsl-bin     (?)
-libgsl0ldbl (?)
-libgsl-dev
-libblas-dev (?)
+gofmt [pre-commit hook](http://golang.tumblr.com/post/439868556/git-precommit-hook-for-gofmt) is helpful for commits.

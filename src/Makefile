@@ -10,7 +10,8 @@ GOFILES=\
 	point.go\
 	point_set.go\
 	random.go\
-	utility.go
+	utility.go\
+	vector_sort.go
 CGOFILES=\
 	matrix.go
 

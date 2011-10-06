@@ -1,0 +1,10 @@
+{
+	"Delta": 1.0,
+	"V": 0.5,
+	"Beta": 1.0,
+	"Epsilon_alpha": 1.0,
+	"Epsilon_beta": 1.0,
+	"T_alpha": 1.0,
+	"T_beta_dimer": 1.0,
+	"T_beta_diag": 1.0
+}

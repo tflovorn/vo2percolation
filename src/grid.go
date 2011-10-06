@@ -414,3 +414,8 @@ func (g *Grid) DiagNeighbors(p Point) []Point {
 	}
 	return ns
 }
+
+// Return a string representation of the grid.
+func (g *Grid) String() string {
+	return fmt.Sprintln(g.data)
+}

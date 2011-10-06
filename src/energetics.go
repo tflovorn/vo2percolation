@@ -1,7 +1,9 @@
 // Functions for calculating energies based on a Grid and Environment.
 package percolation
 
-import "math"
+import (
+	"math"
+)
 
 type Energetics struct {
 	env Environment
@@ -62,15 +64,16 @@ func (e *Energetics) ElectronHamiltonian(g *Grid) []*SymmetricMatrix {
 	for _, p := range activePoints {
 		id := convert(p)
 		// on-site energy
-		alpha.Set(id, id, e.env.Epsilon_alpha)
-		beta.Set(id, id, e.env.Epsilon_beta)
+		alpha.Add(id, id, e.env.Epsilon_alpha)
+		beta.Add(id, id, e.env.Epsilon_beta)
 		// dimer-direction hopping
 		nsDim := g.DimerNeighbors(p)
 		for _, n := range nsDim {
 			if g.Get(n) {
 				nId := convert(n)
-				alpha.Add(nId, nId, e.env.T_alpha)
-				beta.Add(nId, nId, e.env.T_beta_dimer)
+				// factors of 1/2 due to double counting
+				alpha.Add(id, nId, -e.env.T_alpha/2)
+				beta.Add(id, nId, -e.env.T_beta_dimer/2)
 			}
 		}
 		// diagonal-direction hopping
@@ -78,7 +81,7 @@ func (e *Energetics) ElectronHamiltonian(g *Grid) []*SymmetricMatrix {
 		for _, n := range nsDiag {
 			if g.Get(n) {
 				nId := convert(n)
-				beta.Add(nId, nId, e.env.T_beta_diag)
+				beta.Add(id, nId, -e.env.T_beta_diag/2)
 			}
 		}
 	}

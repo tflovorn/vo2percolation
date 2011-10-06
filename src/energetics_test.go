@@ -2,6 +2,7 @@ package percolation
 
 import (
 	"testing"
+	"math"
 	"fmt"
 )
 
@@ -34,5 +35,35 @@ func TestSiteFlipEnergyKnown(t *testing.T) {
 	withDimerActivate := e.SiteFlipEnergy(grid, Point{1, 0})
 	if withDimerActivate != e.Delta()-e.V() {
 		t.Fatalf("incorrect result from SiteFlipEnergy (withDimerActivate)")
+	}
+}
+
+func TestElectronHamiltonian4x4(t *testing.T) {
+	// initialize config data
+	env, err := EnvironmentFromFile("default.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	e := NewEnergetics(*env)
+	// initialize the grid (2x2, all active)
+	grid := NewGridWithDims(2, 2)
+	activate := func(p Point, val bool) {
+		grid.Set(p, true)
+	}
+	grid.Iterate(activate)
+	H_el := e.ElectronHamiltonian(grid)
+	alpha_evals, _ := H_el[0].Eigensystem()
+	beta_evals, _ := H_el[1].Eigensystem()
+	eps := 1e-12
+	neq := func(x float64, y float64) bool {
+		return math.Fabs(x-y) > eps
+	}
+	expected_alpha_evals := []float64{2, 0, 2, 0}
+	sq17 := math.Sqrt(17)
+	expected_beta_evals := []float64{0.5 * (1 - sq17), 1, 0.5 * (1 + sq17), 2.0}
+	for i := 0; i < 4; i++ {
+		if neq(alpha_evals[i], expected_alpha_evals[i]) || neq(beta_evals[i], expected_beta_evals[i]) {
+			t.Fatalf("encountered unexpected eigenvalue")
+		}
 	}
 }

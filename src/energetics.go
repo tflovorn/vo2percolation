@@ -100,18 +100,24 @@ func (e *Energetics) ElectronHamiltonian(g *Grid) []*SymmetricMatrix {
 	return []*SymmetricMatrix{alpha, beta}
 }
 
-// Determine the Fermi energy by filling the lowest available states with
-// a number of particles equal to particleCount. Two particles are allowed
-// per state, reflecting the Hamiltonian's spin invariance.
-func (e *Energetics) FermiEnergy(g *Grid, particleCount int) (float64, os.Error) {
-	if particleCount <= 0 {
-		return 0.0, fmt.Errorf("Fermi energy not defined for given number of particles")
-	}
+// Return a sorted list of the electronic energy levels. Each level has a
+// degeneracy of two due to the Hamiltonian's spin invariance.
+func (e *Energetics) ElectronEnergies(g *Grid) []float64 {
 	H_el := e.ElectronHamiltonian(g)
 	alpha_evals, _ := H_el[0].Eigensystem()
 	beta_evals, _ := H_el[1].Eigensystem()
 	energies := append(alpha_evals, beta_evals...)
 	sort.Float64s(energies)
+	return energies
+}
+
+// Determine the Fermi energy by filling the lowest available states with
+// a number of particles equal to particleCount.
+func (e *Energetics) FermiEnergy(g *Grid, particleCount int) (float64, os.Error) {
+	if particleCount <= 0 {
+		return 0.0, fmt.Errorf("Fermi energy not defined for given number of particles")
+	}
+	energies := e.ElectronEnergies(g)
 	// numOccupied is the number of occupied energy levels
 	var numOccupied int
 	if particleCount%2 == 0 {
@@ -120,4 +126,19 @@ func (e *Energetics) FermiEnergy(g *Grid, particleCount int) (float64, os.Error)
 		numOccupied = (particleCount + 1) / 2
 	}
 	return energies[numOccupied-1], nil
+}
+
+// Fermi distribution function.
+func FermiDist(energy float64) float64 {
+	return 1.0 / (math.Exp(energy) + 1)
+}
+
+// Return the particle number corresponding to the chemical potential mu.
+func (e *Energetics) NumParticles(energies []float64, mu float64) float64 {
+	sum := 0.0
+	for _, energy := range energies {
+		// might want to make this a Kahan summation
+		sum += 2.0 * FermiDist(energy-mu)
+	}
+	return sum
 }

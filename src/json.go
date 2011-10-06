@@ -6,6 +6,7 @@ import (
 	"json"
 	"os"
 	"reflect"
+	"strings"
 )
 
 // Copy values from the JSON object at filePath into object.
@@ -100,4 +101,18 @@ func CopyValues(jsonObject *map[string]interface{}, object interface{}) {
 		// set the field in object
 		field.Set(reflect.ValueOf(value))
 	}
+}
+
+// Convert string to byte slice
+func StringToBytes(str string) ([]byte, os.Error) {
+	reader := strings.NewReader(str)
+	bytes := make([]byte, len(str))
+	for seen := 0; seen < len(str); {
+		n, err := reader.Read(bytes)
+		if err != nil {
+			return nil, err
+		}
+		seen += n
+	}
+	return bytes, nil
 }

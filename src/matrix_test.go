@@ -99,3 +99,49 @@ func TestEigensystem3x3WithZeros(t *testing.T) {
 	}
 
 }
+
+func TestEigensystem7x7Really3x3(t *testing.T) {
+	sym := NewSymmetricMatrix(7)
+	sym.Set(1, 1, 1.0)
+	sym.Set(1, 3, 1.0)
+	sym.Set(1, 5, 1.0)
+	sym.Set(3, 3, 2.0)
+	sym.Set(3, 5, 1.0)
+	sym.Set(5, 5, 2.0)
+	vals, vs := sym.Eigensystem()
+	eps := 1e-12
+	neq := func(x float64, y float64) bool {
+		return math.Fabs(x-y) > eps
+	}
+	s3 := math.Sqrt(3)
+	// Inspect eigenvalues:
+	// this could fail if the order of returned eigenvalues changes.
+	if neq(vals[0], 2-s3) || neq(vals[1], 2+s3) || neq(vals[2], 1.0) {
+		t.Fatalf("incorrect eigenvalue returned")
+	}
+	// Inspect zero eigenvectors.
+	for i := 0; i <= 6; i += 2 {
+		for j := 0; j < 7; j++ {
+			if neq(vs[i][j], 0.0) {
+				t.Fatalf("unexpected nonzero eigenvector")
+			}
+		}
+	}
+	// Inspect nonzero eigenvectors.
+	norms := []float64{math.Sqrt(2 * (3 + s3)), math.Sqrt(2 * (3 - s3)), math.Sqrt(2)}
+	expected := [][]float64{[]float64{1.0 + s3, -1, -1}, []float64{-s3 + 1.0, -1, -1}, []float64{0, -1, 1}}
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 7; j++ {
+			var val float64
+			if j%2 == 0 { // even elements are zeroed
+				val = 0.0
+			} else {
+				val = expected[i][(j-1)/2]
+			}
+			comp := norms[i] * vs[2*i+1][j]
+			if neq(val, comp) {
+				t.Fatalf("unexpected eigenvector element")
+			}
+		}
+	}
+}

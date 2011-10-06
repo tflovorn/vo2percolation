@@ -12,10 +12,13 @@ type Environment struct {
 	Beta  float64 // inverse thermal energy 1 / (k_B * T)
 	Delta float64 // energy cost of exciting an atom
 	V     float64 // energy gained from exciting a dimer
-	// hopping energies:
-	t_alpha      float64 // dimer direction, a_1g orbital
-	t_beta_dimer float64 // dimer direction, e_pi orbital
-	t_beta_diag  float64 // diagonal direction, e_pi orbital
+	// on-site energies
+	Epsilon_alpha float64
+	Epsilon_beta  float64
+	// hopping energies
+	T_alpha      float64 // dimer direction, a_1g orbital
+	T_beta_dimer float64 // dimer direction, e_pi orbital
+	T_beta_diag  float64 // diagonal direction, e_pi orbital
 }
 
 // Build an Environment from the JSON file at filePath.

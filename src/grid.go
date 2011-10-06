@@ -332,11 +332,11 @@ func (g *Grid) clusterHelper(start Point, ps *PointSet) {
 	if ps == nil {
 		panic("must initialize ps in clusterHelper")
 	}
-	// base case: don't go to inactive or already-seen sites
+	// ignore inactive or already-seen sites
 	if ps.Contains(start) || !g.Get(start) {
 		return
 	}
-	// haven't seen this active site yet: add it and try its neighbors
+	// active site, not seen yet: add it and try its neighbors
 	ps.Add(start)
 	ns := g.Neighbors(start)
 	for _, point := range ns {

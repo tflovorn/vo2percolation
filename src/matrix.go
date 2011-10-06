@@ -76,6 +76,12 @@ func (sym *SymmetricMatrix) Set(i, j int, val float64) {
 	}
 }
 
+// Add x to the value at row i, column j in sym.
+func (sym *SymmetricMatrix) Add(i, j int, x float64) {
+	cur := sym.Get(i, j)
+	sym.Set(i, j, cur+x)
+}
+
 // Return true if and only if sym and comp represent the same matrix.
 func (sym *SymmetricMatrix) Equals(comp *SymmetricMatrix) bool {
 	if sym.length != comp.length {

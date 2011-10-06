@@ -50,6 +50,41 @@ func (e *Energetics) SiteFlipEnergy(g *Grid, p Point) float64 {
 	return energyChange
 }
 
+// Hamiltonian for the electrons on g. Assumes two orbitals, where electrons
+// in one orbital move only in the dimer and diagonal directions. Electrons
+// on the other orbital move in both directions. Neither orbital allows the
+// electrons to move in the direction perpindicular to the dimer direction.
+func (e *Energetics) ElectronHamiltonian(g *Grid) []*SymmetricMatrix {
+	alpha := NewSymmetricMatrix(g.Lx() * g.Ly())
+	beta := NewSymmetricMatrix(g.Lx() * g.Ly())
+	activePoints := g.ActiveSites().Elements()
+	convert := g.ConvertTo1D()
+	for _, p := range activePoints {
+		id := convert(p)
+		// on-site energy
+		alpha.Set(id, id, e.env.Epsilon_alpha)
+		beta.Set(id, id, e.env.Epsilon_beta)
+		// dimer-direction hopping
+		nsDim := g.DimerNeighbors(p)
+		for _, n := range nsDim {
+			if g.Get(n) {
+				nId := convert(n)
+				alpha.Add(nId, nId, e.env.T_alpha)
+				beta.Add(nId, nId, e.env.T_beta_dimer)
+			}
+		}
+		// diagonal-direction hopping
+		nsDiag := g.DiagNeighbors(p)
+		for _, n := range nsDiag {
+			if g.Get(n) {
+				nId := convert(n)
+				beta.Add(nId, nId, e.env.T_beta_diag)
+			}
+		}
+	}
+	return []*SymmetricMatrix{alpha, beta}
+}
+
 // Boltzmann factor.
 func (e *Energetics) Boltzmann(energy float64) float64 {
 	return math.Exp(-e.Beta() * energy)

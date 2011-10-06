@@ -6,9 +6,8 @@ import (
 	"fmt"
 )
 
-var energyDefaultGrid [][]bool = [][]bool{[]bool{true, false, true}, []bool{false, false, true}}
-
 func TestSiteFlipEnergyKnown(t *testing.T) {
+	var energyDefaultGrid [][]bool = [][]bool{[]bool{true, false, true}, []bool{false, false, true}}
 	grid, err := NewGrid(energyDefaultGrid)
 	if err != nil {
 		t.Fatal(err)
@@ -65,5 +64,31 @@ func TestElectronHamiltonian4x4(t *testing.T) {
 		if neq(alpha_evals[i], expected_alpha_evals[i]) || neq(beta_evals[i], expected_beta_evals[i]) {
 			t.Fatalf("encountered unexpected eigenvalue")
 		}
+	}
+}
+
+func TestFermiEnergy2x2(t *testing.T) {
+	eps := 1e-12
+	neq := func(x float64, y float64) bool {
+		return math.Fabs(x-y) > eps
+	}
+	// initialize config data
+	env, err := EnvironmentFromFile("default.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	e := NewEnergetics(*env)
+	// initialize the grid (2x2, all active)
+	grid := NewGridWithDims(2, 2)
+	activate := func(p Point, val bool) {
+		grid.Set(p, true)
+	}
+	grid.Iterate(activate)
+	fermi, err := e.FermiEnergy(grid, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if neq(0.0, fermi) {
+		t.Fatalf("unexpected value for Fermi energy")
 	}
 }

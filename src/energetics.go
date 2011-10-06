@@ -3,6 +3,9 @@ package percolation
 
 import (
 	"math"
+	"sort"
+	"os"
+	"fmt"
 )
 
 type Energetics struct {
@@ -26,6 +29,15 @@ func (e *Energetics) Delta() float64 {
 
 func (e *Energetics) V() float64 {
 	return e.env.V
+}
+
+// Boltzmann factor.
+func (e *Energetics) Boltzmann(energy float64) float64 {
+	return math.Exp(-e.Beta() * energy)
+}
+
+func (e *Energetics) LogBoltzmann(energy float64) float64 {
+	return -e.Beta() * energy
 }
 
 // Give the energy corresponding to the given grid of atoms without including
@@ -88,11 +100,24 @@ func (e *Energetics) ElectronHamiltonian(g *Grid) []*SymmetricMatrix {
 	return []*SymmetricMatrix{alpha, beta}
 }
 
-// Boltzmann factor.
-func (e *Energetics) Boltzmann(energy float64) float64 {
-	return math.Exp(-e.Beta() * energy)
-}
-
-func (e *Energetics) LogBoltzmann(energy float64) float64 {
-	return -e.Beta() * energy
+// Determine the Fermi energy by filling the lowest available states with
+// a number of particles equal to particleCount. Two particles are allowed
+// per state, reflecting the Hamiltonian's spin invariance.
+func (e *Energetics) FermiEnergy(g *Grid, particleCount int) (float64, os.Error) {
+	if particleCount <= 0 {
+		return 0.0, fmt.Errorf("Fermi energy not defined for given number of particles")
+	}
+	H_el := e.ElectronHamiltonian(g)
+	alpha_evals, _ := H_el[0].Eigensystem()
+	beta_evals, _ := H_el[1].Eigensystem()
+	energies := append(alpha_evals, beta_evals...)
+	sort.Float64s(energies)
+	// numOccupied is the number of occupied energy levels
+	var numOccupied int
+	if particleCount%2 == 0 {
+		numOccupied = particleCount / 2
+	} else {
+		numOccupied = (particleCount + 1) / 2
+	}
+	return energies[numOccupied-1], nil
 }

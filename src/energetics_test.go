@@ -92,3 +92,30 @@ func TestFermiEnergy2x2(t *testing.T) {
 		t.Fatalf("unexpected value for Fermi energy")
 	}
 }
+
+func TestFindMu(t *testing.T) {
+	eps := 1e-8
+	neq := func(x float64, y float64) bool {
+		return math.Fabs(x-y) > eps
+	}
+	// initialize config data
+	env, err := EnvironmentFromFile("default.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	e := NewEnergetics(*env)
+	// initialize the grid (2x2, all active)
+	grid := NewGridWithDims(2, 2)
+	activate := func(p Point, val bool) {
+		grid.Set(p, true)
+	}
+	grid.Iterate(activate)
+	mu, err := e.FindMu(grid, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expectedMu := -0.45589897859312906
+	if neq(mu, expectedMu) {
+		t.Fatalf("unexpected value of mu")
+	}
+}

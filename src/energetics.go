@@ -150,7 +150,6 @@ func (e *Energetics) NumElectronsError(g *Grid, particleCount int, mu float64) f
 }
 
 // Find the value of mu appropriate for the given number of particles.
-// --depends on a stub--
 func (e *Energetics) FindMu(g *Grid, particleCount int) (float64, os.Error) {
 	error := func(mu float64) float64 {
 		return e.NumElectronsError(g, particleCount, mu)
@@ -158,6 +157,6 @@ func (e *Energetics) FindMu(g *Grid, particleCount int) (float64, os.Error) {
 	// arbitrary end points; assume error(mu) is monotonic
 	muMin := -100.0 * e.Delta()
 	muMax := 100.0 * e.Delta()
-	eps := 1e-6
+	eps := 1e-9
 	return Solve1D(error, muMin, muMax, eps, eps)
 }

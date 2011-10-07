@@ -133,12 +133,31 @@ func FermiDist(energy float64) float64 {
 	return 1.0 / (math.Exp(energy) + 1)
 }
 
-// Return the particle number corresponding to the chemical potential mu.
-func (e *Energetics) NumParticles(energies []float64, mu float64) float64 {
+// Return the electron number corresponding to the chemical potential mu.
+func (e *Energetics) NumElectrons(energies []float64, mu float64) float64 {
 	sum := 0.0
 	for _, energy := range energies {
 		// might want to make this a Kahan summation
-		sum += 2.0 * FermiDist(energy-mu)
+		sum += 2.0 * FermiDist(energy-mu) // 2 for spin degeneracy
 	}
 	return sum
+}
+
+// Returns the error in the number of particles calculated from mu.
+func (e *Energetics) NumElectronsError(g *Grid, particleCount int, mu float64) float64 {
+	energies := e.ElectronEnergies(g)
+	return float64(particleCount) - e.NumElectrons(energies, mu)
+}
+
+// Find the value of mu appropriate for the given number of particles.
+// --depends on a stub--
+func (e *Energetics) FindMu(g *Grid, particleCount int) (float64, os.Error) {
+	error := func(mu float64) float64 {
+		return e.NumElectronsError(g, particleCount, mu)
+	}
+	// arbitrary end points; assume error(mu) is monotonic
+	muMin := -100.0 * e.Delta()
+	muMax := 100.0 * e.Delta()
+	eps := 1e-6
+	return Solve1D(error, muMin, muMax, eps, eps)
 }

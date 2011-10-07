@@ -12,6 +12,7 @@ GOFILES=\
 	random.go\
 	vector_sort.go
 CGOFILES=\
-	matrix.go
+	matrix.go\
+	solve1d.go
 
 include $(GOROOT)/src/Make.pkg

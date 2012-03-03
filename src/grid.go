@@ -104,6 +104,25 @@ func (g *Grid) Ly() int {
 	return len(g.data[0])
 }
 
+// Return true if the point (x, y) is within the grid boundaries; return false
+// otherwise.
+func (g *Grid) InBounds(p Point) bool {
+	x, y := p.X(), p.Y()
+	if x < 0 || y < 0 || x >= g.Lx() || y >= g.Ly() {
+		return false
+	}
+	return true
+}
+
+// If the point (x, y) is not in the grid boundaries, panic. Return true if 
+// the point is within bounds.
+func (g *Grid) CheckBounds(p Point) bool {
+	if !g.InBounds(p) {
+		panic(fmt.Sprintf(GridBoundsError, p.X(), p.Y()))
+	}
+	return true
+}
+
 // Get the grid value at (x, y). Panic if (x, y) is out of bounds.
 func (g *Grid) Get(p Point) bool {
 	g.CheckBounds(p)
@@ -123,38 +142,20 @@ func (g *Grid) Toggle(p Point) {
 }
 
 // Turn this grid into the next one in sequence.
-func (g *Grid) NextGrid() os.Error {
+// Return true when moving from the final grid back to the first one.
+func (g *Grid) NextGrid() bool {
 	p := Point{0, 0}
 	for p.y = 0; p.y < g.Ly(); p.y++ {
 		for p.x = 0; p.x < g.Lx(); p.x++ {
 			if !g.Get(p) {
 				g.Toggle(p)
-				return nil
+				return false
 			} else {
 				g.Toggle(p)
 			}
 		}
 	}
-	// only get here if all points are true
-	return os.NewError("Grid iteration finished")
-}
-
-// Return true if the point (x, y) is within the grid boundaries; return false
-// otherwise.
-func (g *Grid) InBounds(p Point) bool {
-	x, y := p.X(), p.Y()
-	if x < 0 || y < 0 || x >= g.Lx() || y >= g.Ly() {
-		return false
-	}
-	return true
-}
-
-// If the point (x, y) is not in the grid boundaries, panic. Return true if 
-// the point is within bounds.
-func (g *Grid) CheckBounds(p Point) bool {
-	if !g.InBounds(p) {
-		panic(fmt.Sprintf(GridBoundsError, p.X(), p.Y()))
-	}
+	// only get here if all points were true
 	return true
 }
 

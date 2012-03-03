@@ -106,9 +106,9 @@ func TestNextGridNumber(t *testing.T) {
 	numGrids := 0
 	g := NewGridWithDims(L, L)
 	for {
-		err := g.NextGrid()
+		done := g.NextGrid()
 		numGrids++
-		if err != nil {
+		if done {
 			break
 		}
 	}

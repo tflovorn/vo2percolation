@@ -2,6 +2,7 @@ include $(GOROOT)/src/Make.inc
 
 TARG=percolation
 GOFILES=\
+	analyze_clusters.go\
 	energetics.go\
 	environment.go\
 	grid.go\
@@ -10,7 +11,6 @@ GOFILES=\
 	point.go\
 	point_set.go\
 	random.go\
-	small_clusters.go\
 	vector_sort.go
 CGOFILES=\
 	matrix.go\

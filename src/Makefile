@@ -10,6 +10,7 @@ GOFILES=\
 	point.go\
 	point_set.go\
 	random.go\
+	small_clusters.go\
 	vector_sort.go
 CGOFILES=\
 	matrix.go\

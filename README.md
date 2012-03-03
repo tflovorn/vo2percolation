@@ -5,6 +5,10 @@ gsl-bin
 libgsl0ldbl
 libgsl0-dev
 
+To build on Fedora, requires:
+gsl
+gsl-devel
+
 __Description of the model__
 
 Ground state: atoms are all dimerized, which prevents long-range hopping. 

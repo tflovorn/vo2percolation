@@ -2,8 +2,8 @@ package percolation
 
 import (
 	"testing"
-	/* for performance test
 	"math"
+	/* for performance test
 	"time"
 	"fmt"
 	*/
@@ -96,6 +96,24 @@ func TestRandomConstrainedGridCreation(t *testing.T) {
 	}
 	if grid.ActiveSiteCount() != activeSites {
 		t.Fatalf("RandomConstrainedGrid did not start with the requested number of active sites")
+	}
+}
+
+// Does NextGrid produce the correct number of grids?
+func TestNextGridNumber(t *testing.T) {
+	L := 3
+	expectedNumGrids := int(math.Pow(2.0, float64(L*L)))
+	numGrids := 0
+	g := NewGridWithDims(L, L)
+	for {
+		err := g.NextGrid()
+		numGrids++
+		if err != nil {
+			break
+		}
+	}
+	if numGrids != expectedNumGrids {
+		t.Fatalf("g.NextGrid() did not produce the expected number of unique grids")
 	}
 }
 

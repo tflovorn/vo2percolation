@@ -2,12 +2,13 @@ package vo2percolation
 
 import (
 	"testing"
+	"flag"
 	"math"
-	/* for performance test
 	"time"
 	"fmt"
-	*/
 )
+
+var allc_scaling *bool = flag.Bool("allc_scaling", false, "Run AllClusters performance test")
 
 var defaultData [][]bool = [][]bool{[]bool{true, false, true}, []bool{false, false, true}}
 
@@ -117,12 +118,17 @@ func TestNextGridNumber(t *testing.T) {
 	}
 }
 
-/*
 // The performance of AllClusters should scale linearly with the number of
 // sites in the grid.  Does it?
 // (lots of code stolen from PointSetPerformance test, may want a common
 // framework for grid benchmarks.)
 func TestAllClustersPerformance(t *testing.T) {
+	// should we run this?
+	flag.Parse()
+	if !*allc_scaling {
+		return
+	}
+	// real test starts here
 	failureRatio := 1.5
 	startN := 1024
 	scaleN := 4
@@ -165,4 +171,3 @@ func TestAllClustersPerformance(t *testing.T) {
 		}
 	}
 }
-*/

@@ -84,7 +84,7 @@ func (mc *MonteCarlo) Simulate(e *Energetics, Lx, Ly int) ([]*MonteCarloOutput, 
 	for time := 0; time < mc.totalSteps; time++ {
 		thisOutput := new(MonteCarloOutput)
 		// log grid if it's the right time to
-		if time%mc.recordInterval == 0 {
+		if mc.recordInterval > 0 && time%mc.recordInterval == 0 {
 			thisOutput.Grid = grid.Copy()
 		}
 		// record the quantities we want to know for each configuration

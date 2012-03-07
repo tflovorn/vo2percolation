@@ -1,5 +1,5 @@
 // A point on the 2D grid.
-package percolation
+package vo2percolation
 
 type Point struct {
 	// Coordinates of the point.

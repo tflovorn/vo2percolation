@@ -1,6 +1,6 @@
 // Sort a group of vectors by keys given in a separate list by implementing
 // sort.Interface and calling sort.Sort().
-package percolation
+package vo2percolation
 
 import (
 	"sort"

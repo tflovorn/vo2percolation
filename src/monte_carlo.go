@@ -1,5 +1,5 @@
 // Monte Carlo simulation of VO2 system
-package percolation
+package vo2percolation
 
 import (
 	"os"

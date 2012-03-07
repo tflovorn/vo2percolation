@@ -1,7 +1,7 @@
 // Matrix functions necessary for eigendecomposition of electron Hamiltonian
 // Inspired by matrix implementation in go-gsl
 // (https://bitbucket.org/fhs/go-gsl)
-package percolation
+package vo2percolation
 
 // some of these included packages may not be necessary
 

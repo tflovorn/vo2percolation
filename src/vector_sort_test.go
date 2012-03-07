@@ -1,4 +1,4 @@
-package percolation
+package vo2percolation
 
 import (
 	"testing"

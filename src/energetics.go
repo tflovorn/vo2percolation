@@ -1,5 +1,5 @@
 // Functions for calculating energies based on a Grid and Environment.
-package percolation
+package vo2percolation
 
 import (
 	"math"

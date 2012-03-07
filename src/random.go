@@ -1,5 +1,5 @@
 // Functions for producing random values.
-package percolation
+package vo2percolation
 
 import (
 	"rand"

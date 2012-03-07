@@ -1,5 +1,5 @@
 // Unordered set of 2D points
-package percolation
+package vo2percolation
 
 type PointSet struct {
 	// The PointSet needs to be able to represent a Point as an int.

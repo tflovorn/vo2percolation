@@ -1,4 +1,4 @@
-package percolation
+package vo2percolation
 
 import (
 	"os"
@@ -7,8 +7,8 @@ import (
 
 type GridAnalysis struct {
 	totalSites int
-	fermi float64
-	grid [][]bool
+	fermi      float64
+	grid       [][]bool
 }
 
 const separatorRepeat = 3

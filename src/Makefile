@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.inc
 
-TARG=percolation
+TARG=vo2percolation
 GOFILES=\
 	analyze_clusters.go\
 	energetics.go\

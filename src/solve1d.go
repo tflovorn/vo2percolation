@@ -1,5 +1,5 @@
 // Interface to GSL one-dimensional function solver.
-package percolation
+package vo2percolation
 
 /*
 #cgo LDFLAGS: -lgsl

@@ -1,5 +1,5 @@
 // Functions for reading and writing JSON objects
-package percolation
+package vo2percolation
 
 import (
 	"io/ioutil"

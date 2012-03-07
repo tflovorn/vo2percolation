@@ -4,7 +4,7 @@
 // Sites where the boolean is true are 'active' and can form clusters.
 // Clusters are connected by neighbors in the dimer-forming (x) direction and
 // in the diagonal directions.
-package percolation
+package vo2percolation
 
 import (
 	"os"

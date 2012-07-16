@@ -1,8 +1,8 @@
 package vo2percolation
 
 import (
-	"testing"
 	"math"
+	"testing"
 )
 
 func TestSolve1DLinear(t *testing.T) {
@@ -17,7 +17,7 @@ func TestSolve1DLinear(t *testing.T) {
 		t.Fatal(err)
 	}
 	neq := func(x, y float64) bool {
-		return math.Fabs(x-y) > eps
+		return math.Abs(x-y) > eps
 	}
 	if neq(root, expectedRoot) {
 		t.Fatalf("unexpected value for root")

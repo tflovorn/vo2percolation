@@ -1,8 +1,8 @@
 package vo2percolation
 
 import (
-	"testing"
 	"math"
+	"testing"
 )
 
 func TestBuildSymmetricMatrix(t *testing.T) {
@@ -67,7 +67,7 @@ func TestEigensystem2x2(t *testing.T) {
 	vals, vs := sym.Eigensystem()
 	eps := 1e-12
 	neq := func(x float64, y float64) bool {
-		return math.Fabs(x-y) > eps
+		return math.Abs(x-y) > eps
 	}
 	// this could fail if the order of returned eigenvalues changes
 	if neq(vals[0], 3.0) || neq(vals[1], 1.0) {
@@ -87,7 +87,7 @@ func TestEigensystem3x3WithZeros(t *testing.T) {
 	vals, vs := sym.Eigensystem()
 	eps := 1e-12
 	neq := func(x float64, y float64) bool {
-		return math.Fabs(x-y) > eps
+		return math.Abs(x-y) > eps
 	}
 	// this could fail if the order of returned eigenvalues changes
 	if neq(vals[0], 3.0) || neq(vals[1], 1.0) {
@@ -111,7 +111,7 @@ func TestEigensystem7x7Really3x3(t *testing.T) {
 	vals, vs := sym.Eigensystem()
 	eps := 1e-12
 	neq := func(x float64, y float64) bool {
-		return math.Fabs(x-y) > eps
+		return math.Abs(x-y) > eps
 	}
 	s3 := math.Sqrt(3)
 	// Inspect eigenvalues:

@@ -87,5 +87,5 @@ func (ps *PointSet) Add(p Point) {
 // Remove a point from the set.
 func (ps *PointSet) Remove(p Point) {
 	// key is deleted from data
-	ps.data[ps.convertTo1D(p)] = false, false
+	delete(ps.data, ps.convertTo1D(p))
 }

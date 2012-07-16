@@ -47,7 +47,6 @@ static double solve1D(double left, double right, double epsAbs, double epsRel, v
 import "C"
 
 import (
-	"os"
 	"fmt"
 	"unsafe"
 )
@@ -74,7 +73,7 @@ func goPackDataSolve1D(dataPtr unsafe.Pointer, root C.double, converged C.int) {
 
 // Find the root of error bracketed by left and right to absolute precision
 // epsAbs and relative precision epsRel.
-func Solve1D(error func(float64) float64, left, right, epsAbs, epsRel float64) (float64, os.Error) {
+func Solve1D(error func(float64) float64, left, right, epsAbs, epsRel float64) (float64, error) {
 	errLeft, errRight := error(left), error(right)
 	if (errLeft > 0 && errRight > 0) || (errLeft < 0 && errRight < 0) {
 		return 0.0, fmt.Errorf("left and right do not bracket a root")

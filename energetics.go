@@ -2,10 +2,9 @@
 package vo2percolation
 
 import (
+	"fmt"
 	"math"
 	"sort"
-	"os"
-	"fmt"
 )
 
 type Energetics struct {
@@ -113,7 +112,7 @@ func (e *Energetics) ElectronEnergies(g *Grid) []float64 {
 
 // Determine the Fermi energy by filling the lowest available states with
 // a number of particles equal to particleCount.
-func (e *Energetics) FermiEnergy(g *Grid, particleCount int) (float64, os.Error) {
+func (e *Energetics) FermiEnergy(g *Grid, particleCount int) (float64, error) {
 	if particleCount <= 0 {
 		return 0.0, fmt.Errorf("Fermi energy not defined for given number of particles")
 	}
@@ -150,7 +149,7 @@ func (e *Energetics) NumElectronsError(g *Grid, particleCount int, mu float64) f
 }
 
 // Find the value of mu appropriate for the given number of particles.
-func (e *Energetics) FindMu(g *Grid, particleCount int) (float64, os.Error) {
+func (e *Energetics) FindMu(g *Grid, particleCount int) (float64, error) {
 	error := func(mu float64) float64 {
 		return e.NumElectronsError(g, particleCount, mu)
 	}

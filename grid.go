@@ -7,7 +7,6 @@
 package vo2percolation
 
 import (
-	"os"
 	"fmt"
 	"math"
 )
@@ -45,7 +44,7 @@ func CheckDimensions(gridData [][]bool) bool {
 // Construct a Grid object from initData.  
 // Ensure that initData has the correct shape to be a Grid.
 // Returns nil and an error if the shape is not correct.
-func NewGrid(initData [][]bool) (*Grid, os.Error) {
+func NewGrid(initData [][]bool) (*Grid, error) {
 	if !CheckDimensions(initData) {
 		return nil, fmt.Errorf(GridShapeError)
 	}
@@ -64,13 +63,13 @@ func NewGridWithDims(Lx, Ly int) *Grid {
 	// make the Grid
 	g, err := NewGrid(data)
 	if err != nil {
-		panic("NewGridWithDims failed: " + err.String())
+		panic("NewGridWithDims failed: " + err.Error())
 	}
 	return g
 }
 
 // Generate a random grid of dimensions Lx and Ly with N active sites.
-func RandomConstrainedGrid(Lx, Ly, N int) (*Grid, os.Error) {
+func RandomConstrainedGrid(Lx, Ly, N int) (*Grid, error) {
 	// must have at least one site
 	if Lx <= 0 || Ly <= 0 {
 		return nil, fmt.Errorf("invalid grid dimensions")
@@ -225,7 +224,7 @@ func (g *Grid) DimerCount() int {
 }
 
 // Return the site which can form a dimer with the given site at (x, y).
-func (g *Grid) DimerPartner(p Point) (Point, os.Error) {
+func (g *Grid) DimerPartner(p Point) (Point, error) {
 	g.CheckBounds(p)
 	x, y := p.X(), p.Y()
 	// even site: parter is to the right (if it exists)
@@ -245,7 +244,7 @@ func (g *Grid) DimerChange(p Point) int {
 	thisSiteValue := g.Get(p)
 	partner, err := g.DimerPartner(p)
 	if err != nil {
-		if err.String() == DimerPartnerError {
+		if err.Error() == DimerPartnerError {
 			return 0
 		}
 		panic("unexpected error from DimerPartner")

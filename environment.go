@@ -1,9 +1,6 @@
 package vo2percolation
 
-import (
-	"os"
-	"fmt"
-)
+import "fmt"
 
 const EnvironmentValidateError = "Environment input parameters are invalid"
 
@@ -22,21 +19,21 @@ type Environment struct {
 }
 
 // Build an Environment from the JSON file at filePath.
-func EnvironmentFromFile(filePath string) (*Environment, os.Error) {
-	return buildEnvironment(func(env *Environment) os.Error {
+func EnvironmentFromFile(filePath string) (*Environment, error) {
+	return buildEnvironment(func(env *Environment) error {
 		return CopyFromFile(filePath, env)
 	})
 }
 
 // Build an Environment from the given JSON string.
-func EnvironmentFromString(jsonData string) (*Environment, os.Error) {
-	return buildEnvironment(func(env *Environment) os.Error {
+func EnvironmentFromString(jsonData string) (*Environment, error) {
+	return buildEnvironment(func(env *Environment) error {
 		return CopyFromString(jsonData, env)
 	})
 }
 
 // Build an environment using the given copy function.
-func buildEnvironment(copier func(*Environment) os.Error) (*Environment, os.Error) {
+func buildEnvironment(copier func(*Environment) error) (*Environment, error) {
 	env := new(Environment)
 	err := copier(env)
 	if err != nil {

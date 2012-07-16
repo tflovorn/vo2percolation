@@ -2,9 +2,8 @@
 package vo2percolation
 
 import (
-	"os"
-	"math"
 	"fmt"
+	"math"
 )
 
 const MonteCarloValidateError = "Monte Carlo input parameters are invalid"
@@ -27,7 +26,7 @@ type MonteCarloOutput struct {
 }
 
 // Create a new (input-validated) MonteCarlo with the given parameters.
-func NewMonteCarlo(etaMinimum float64, totalSteps, recordInterval int) (*MonteCarlo, os.Error) {
+func NewMonteCarlo(etaMinimum float64, totalSteps, recordInterval int) (*MonteCarlo, error) {
 	mc := new(MonteCarlo)
 	mc.etaMinimum = etaMinimum
 	mc.totalSteps = totalSteps
@@ -71,7 +70,7 @@ func (mc *MonteCarlo) Step(e *Energetics, g *Grid) bool {
 // taking steps equal to mc.totalSteps.  Return a slice containg each recorded
 // grid.  May also want to return a slice of the times when each grid was
 // recorded.
-func (mc *MonteCarlo) Simulate(e *Energetics, Lx, Ly int) ([]*MonteCarloOutput, os.Error) {
+func (mc *MonteCarlo) Simulate(e *Energetics, Lx, Ly int) ([]*MonteCarloOutput, error) {
 	outputList := []*MonteCarloOutput{}
 	// estimate starting number of active sites
 	expectedActive := int(float64(Lx*Ly) * e.Boltzmann(e.Delta()))

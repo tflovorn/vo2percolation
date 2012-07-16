@@ -1,11 +1,10 @@
 package vo2percolation
 
 import (
-	"testing"
 	"flag"
-	"os"
-	"time"
 	"fmt"
+	"testing"
+	"time"
 )
 
 var mc_scaling *bool = flag.Bool("mc_scaling", false, "Run Monte Carlo scaling test")
@@ -42,18 +41,17 @@ func TestMonteCarloScaling(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		msTime := float64(execTime) / 1e6
-		fmt.Println(L, msTime, msTime / float64(L*L))
+		msTime := execTime / 1.0e6
+		fmt.Println(L, msTime, msTime/float64(L*L))
 	}
 }
 
-func TimeMonteCarloStep(energ *Energetics, mc *MonteCarlo, L int) (int64, os.Error) {
-	initTime := time.Nanoseconds()
+func TimeMonteCarloStep(energ *Energetics, mc *MonteCarlo, L int) (float64, error) {
+	initTime := time.Now()
 	_, err := mc.Simulate(energ, L, L)
 	if err != nil {
 		return -1, err
 	}
-	elapsedTime := time.Nanoseconds() - initTime
+	elapsedTime := time.Now().Sub(initTime).Seconds()
 	return elapsedTime, nil
 }
-

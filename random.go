@@ -2,7 +2,7 @@
 package vo2percolation
 
 import (
-	"rand"
+	"math/rand"
 	"time"
 )
 
@@ -12,7 +12,7 @@ var r *rand.Rand = newRandom()
 
 // Create a new random value generator.
 func newRandom() *rand.Rand {
-	src := rand.NewSource(time.Nanoseconds())
+	src := rand.NewSource(time.Now().UnixNano())
 	return rand.New(src)
 }
 

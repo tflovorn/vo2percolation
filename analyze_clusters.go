@@ -1,8 +1,8 @@
 package vo2percolation
 
 import (
+	"encoding/json"
 	"os"
-	"json"
 )
 
 type GridAnalysis struct {
@@ -16,7 +16,7 @@ const separatorRepeat = 3
 // Iterate over all possible grid configurations with given grid length.
 // For each configuration with only one cluster, collect data on it and export
 // that data.
-func BruteForceSurvey(gridLength int, ener Energetics, outputFilePath string) os.Error {
+func BruteForceSurvey(gridLength int, ener Energetics, outputFilePath string) error {
 	outputFile, err := os.Create(outputFilePath)
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func BruteForceSurvey(gridLength int, ener Energetics, outputFilePath string) os
 	return nil
 }
 
-func AnalyzeCluster(g *Grid, ener Energetics) (*GridAnalysis, os.Error) {
+func AnalyzeCluster(g *Grid, ener Energetics) (*GridAnalysis, error) {
 	// only interested in grids with a single cluster
 	if len(g.AllClusters()) != 1 {
 		return nil, nil

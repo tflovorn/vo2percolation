@@ -1,11 +1,11 @@
 package vo2percolation
 
 import (
-	"testing"
 	"flag"
-	"math"
-	"time"
 	"fmt"
+	"math"
+	"testing"
+	"time"
 )
 
 var allc_scaling *bool = flag.Bool("allc_scaling", false, "Run AllClusters performance test")
@@ -138,8 +138,8 @@ func TestAllClustersPerformance(t *testing.T) {
 	// Percolation threshold is ~0.59 on square lattice.
 	// What is the threshold for our restricted rhombic lattice?
 	activeFraction := 0.5
-	for totalElapsed := int64(0); totalElapsed < 5e8 || N <= minStopN; N *= scaleN {
-		initTime := time.Nanoseconds()
+	for totalElapsed := time.Since(time.Now()); totalElapsed.Seconds() < 300 && N <= minStopN; N *= scaleN {
+		initTime := time.Now()
 		// Initialize the random grid with N sites.
 		// A constant fraction of these sites are active.
 		activeN := int(activeFraction * float64(N))
@@ -151,14 +151,14 @@ func TestAllClustersPerformance(t *testing.T) {
 		// How long does it take to find all the clusters?
 		// Repeat the process a constant number of times.
 		repeatCount := 1
-		retrieveStartTime := time.Nanoseconds()
+		retrieveStartTime := time.Now()
 		var clusters []*PointSet
 		for i := 0; i < repeatCount; i++ {
 			clusters = grid.AllClusters()
 		}
-		endTime := time.Nanoseconds()
-		retrieveTime := endTime - retrieveStartTime
-		totalElapsed = endTime - initTime
+		endTime := time.Now()
+		retrieveTime := endTime.Sub(retrieveStartTime)
+		totalElapsed = endTime.Sub(initTime)
 		if N == startN {
 			firstTimeRatio = float64(retrieveTime) / float64(N)
 			fmt.Println(N, firstTimeRatio, len(clusters))

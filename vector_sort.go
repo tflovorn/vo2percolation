@@ -3,9 +3,8 @@
 package vo2percolation
 
 import (
-	"sort"
 	"fmt"
-	"os"
+	"sort"
 )
 
 type VectorSorter struct {
@@ -14,7 +13,7 @@ type VectorSorter struct {
 	vectors [][]float64
 }
 
-func NewVectorSorter(values []float64, vectors [][]float64) (*VectorSorter, os.Error) {
+func NewVectorSorter(values []float64, vectors [][]float64) (*VectorSorter, error) {
 	if len(values) != len(vectors) {
 		return nil, fmt.Errorf("arguments to NewVectorSorter must have the same length")
 	}
@@ -34,7 +33,7 @@ func (vs *VectorSorter) Swap(i, j int) {
 	vs.vectors[i], vs.vectors[j] = vs.vectors[j], vs.vectors[i]
 }
 
-func VectorSort(values []float64, vectors [][]float64) ([]float64, [][]float64, os.Error) {
+func VectorSort(values []float64, vectors [][]float64) ([]float64, [][]float64, error) {
 	vs, err := NewVectorSorter(values, vectors)
 	if err != nil {
 		return nil, nil, err

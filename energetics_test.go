@@ -1,9 +1,9 @@
 package vo2percolation
 
 import (
-	"testing"
-	"math"
 	"fmt"
+	"math"
+	"testing"
 )
 
 func TestSiteFlipEnergyKnown(t *testing.T) {
@@ -55,7 +55,7 @@ func TestElectronHamiltonian4x4(t *testing.T) {
 	beta_evals, _ := H_el[1].Eigensystem()
 	eps := 1e-12
 	neq := func(x float64, y float64) bool {
-		return math.Fabs(x-y) > eps
+		return math.Abs(x-y) > eps
 	}
 	expected_alpha_evals := []float64{2, 0, 2, 0}
 	sq17 := math.Sqrt(17)
@@ -70,7 +70,7 @@ func TestElectronHamiltonian4x4(t *testing.T) {
 func TestFermiEnergy2x2(t *testing.T) {
 	eps := 1e-12
 	neq := func(x float64, y float64) bool {
-		return math.Fabs(x-y) > eps
+		return math.Abs(x-y) > eps
 	}
 	// initialize config data
 	env, err := EnvironmentFromFile("default.json")
@@ -96,7 +96,7 @@ func TestFermiEnergy2x2(t *testing.T) {
 func TestFindMu(t *testing.T) {
 	eps := 1e-8
 	neq := func(x float64, y float64) bool {
-		return math.Fabs(x-y) > eps
+		return math.Abs(x-y) > eps
 	}
 	// initialize config data
 	env, err := EnvironmentFromFile("default.json")

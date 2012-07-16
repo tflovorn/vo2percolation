@@ -2,15 +2,15 @@
 package vo2percolation
 
 import (
+	"encoding/json"
 	"io/ioutil"
-	"json"
 	"os"
 	"reflect"
 	"strings"
 )
 
 // Copy values from the JSON object at filePath into object.
-func CopyFromFile(filePath string, object interface{}) os.Error {
+func CopyFromFile(filePath string, object interface{}) error {
 	jsonObject, err := ReadJSONFile(filePath)
 	if err != nil {
 		return err
@@ -20,7 +20,7 @@ func CopyFromFile(filePath string, object interface{}) os.Error {
 }
 
 // Copy values from the JSON string given into object.
-func CopyFromString(jsonData string, object interface{}) os.Error {
+func CopyFromString(jsonData string, object interface{}) error {
 	jsonObject, err := ReadJSONString(jsonData)
 	if err != nil {
 		return err
@@ -30,7 +30,7 @@ func CopyFromString(jsonData string, object interface{}) os.Error {
 }
 
 // Get a JSON object from the byte slice given.
-func ReadJSONBytes(jsonData []byte) (*map[string]interface{}, os.Error) {
+func ReadJSONBytes(jsonData []byte) (*map[string]interface{}, error) {
 	jsonObject := make(map[string]interface{})
 	err := json.Unmarshal(jsonData, &jsonObject)
 	if err != nil {
@@ -40,7 +40,7 @@ func ReadJSONBytes(jsonData []byte) (*map[string]interface{}, os.Error) {
 }
 
 // Get a JSON object from the file given.
-func ReadJSONFile(filePath string) (*map[string]interface{}, os.Error) {
+func ReadJSONFile(filePath string) (*map[string]interface{}, error) {
 	fileContents, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func ReadJSONFile(filePath string) (*map[string]interface{}, os.Error) {
 }
 
 // Get a JSON object from the string given.
-func ReadJSONString(jsonData string) (*map[string]interface{}, os.Error) {
+func ReadJSONString(jsonData string) (*map[string]interface{}, error) {
 	jsonBytes, err := StringToBytes(jsonData)
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func ReadJSONString(jsonData string) (*map[string]interface{}, os.Error) {
 }
 
 // Write Marshal-able object to a new file at filePath
-func WriteJSONFile(object interface{}, filePath string) os.Error {
+func WriteJSONFile(object interface{}, filePath string) error {
 	marshalled, err := json.Marshal(object)
 	if err != nil {
 		return err
@@ -104,7 +104,7 @@ func CopyValues(jsonObject *map[string]interface{}, object interface{}) {
 }
 
 // Convert string to byte slice
-func StringToBytes(str string) ([]byte, os.Error) {
+func StringToBytes(str string) ([]byte, error) {
 	reader := strings.NewReader(str)
 	bytes := make([]byte, len(str))
 	for seen := 0; seen < len(str); {

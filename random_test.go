@@ -1,8 +1,8 @@
 package vo2percolation
 
 import (
-	"testing"
 	"math"
+	"testing"
 )
 
 // Examine the statistics of RandomBool.
@@ -20,7 +20,7 @@ func TestRandomBoolIsRandom(t *testing.T) {
 			falseCount += 1
 		}
 	}
-	difference := math.Fabs(float64(trueCount - falseCount))
+	difference := math.Abs(float64(trueCount - falseCount))
 	relError := difference / float64(repeatCount)
 	if relError > epsilon {
 		t.Fatalf("RandomBool() produced large excess of true or false")
